@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "matrix.fullname" . }}-synapse-admin
+  labels:
+    app.kubernetes.io/name: {{ include "matrix.fullname" . }}-synapse-admin
+  annotations:
+spec:
+  type: "{{ .Values.synapseAdmin.service.type }}"
+  ports:
+    - port: {{ .Values.synapseAdmin.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "matrix.name" . }}-synapse-admin

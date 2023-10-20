@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "matrix.fullname" . }}-synapse-admin
+  labels:
+    app.kubernetes.io/name: {{ include "matrix.fullname" . }}-synapse-admin
+spec:
+  replicas: {{ .Values.synapseAdmin.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "matrix.name" . }}-synapse-admin
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "matrix.name" . }}-synapse-admin
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: "synapse-admin"
+          image: "{{ .Values.synapseAdmin.image.repository }}:{{ .Values.synapseAdmin.image.tag }}"
+          imagePullPolicy: {{ .Values.synapseAdmin.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- if .Values.synapseAdmin.probes.readiness }}
+            {{- toYaml .Values.synapseAdmin.probes.readiness | nindent 12 }}
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- if .Values.synapseAdmin.probes.startup }}
+            {{- toYaml .Values.synapseAdmin.probes.startup | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- if .Values.synapseAdmin.probes.liveness }}
+            {{- toYaml .Values.synapseAdmin.probes.liveness | nindent 12 }}
+            {{- end }}
+          {{- with .Values.synapseAdmin.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
