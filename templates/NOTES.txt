@@ -1,31 +1,34 @@
 {{- if .Release.IsInstall }}
-dacruz21/matrix-chart has been installed!
+Alpacked/matrix-helm has been installed!
 
 Installed components:
- - Synapse ({{ .Values.synapse.image.repository }})
+ - Synapse ({{ .Values.synapse.image.repository }}:{{ .Values.synapse.image.tag }})
+{{- if .Values.synapseAdmin.enabled }}
+ - Synapse Admin ({{ .Values.synapseAdmin.image.repository }}:{{ .Values.synapseAdmin.image.tag }})
+{{- end }}
 {{- if .Values.riot.enabled }}
- - Element Web ({{ .Values.riot.image.repository }})
+ - Element Web ({{ .Values.riot.image.repository }}:{{ .Values.riot.image.tag }})
 {{- end }}
 {{- if .Values.postgresql.enabled }}
- - PostgreSQL ({{ .Values.postgresql.image.repository }})
+ - PostgreSQL ({{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }})
 {{- end }}
 {{- if .Values.coturn.enabled }}
- - Coturn ({{ .Values.coturn.image.repository }})
+ - Coturn ({{ .Values.coturn.image.repository }}:{{ .Values.coturn.image.tag }})
 {{- end }}
 {{- if .Values.mail.relay.enabled }}
- - Exim Relay ({{ .Values.mail.relay.image.repository }})
+ - Exim Relay ({{ .Values.mail.relay.image.repository }}:{{ .Values.mail.relay.image.tag }})
 {{- end }}
 {{- if .Values.bridges.irc.enabled }}
- - IRC Bridge ({{ .Values.bridges.irc.image.repository }})
+ - IRC Bridge ({{ .Values.bridges.irc.image.repository }}:{{ .Values.bridges.irc.image.tag }})
 {{- end }}
 {{- if .Values.bridges.whatsapp.enabled }}
- - WhatsApp Bridge ({{ .Values.bridges.whatsapp.image.repository }})
+ - WhatsApp Bridge ({{ .Values.bridges.whatsapp.image.repository }}:{{ .Values.bridges.whatsapp.image.tag }})
 {{- end }}
 {{- if .Values.bridges.discord.enabled }}
- - Discord Bridge ({{ .Values.bridges.discord.image.repository }})
+ - Discord Bridge ({{ .Values.bridges.discord.image.repository }}:{{ .Values.bridges.discord.image.tag }})
 {{- end }}
 
-Thank you for installing dacruz21/matrix-chart! If you have any questions or run into any issues, please file a GitHub issue or join us at #matrix-chart:typokign.com.
+Thank you for installing Alpacked/matrix-helm! If you have any questions or run into any issues, please file a GitHub issue.
 
 {{ if .Values.ingress.enabled }}
 Your Synapse homeserver should soon be available at https://{{ .Values.ingress.hosts.synapse }}

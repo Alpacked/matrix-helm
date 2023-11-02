@@ -1,8 +1,11 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  {{- if .Values.externalSecret.enabled }}
   name: {{ include "matrix.fullname" . }}-synapse-config-tpl
+  {{- else }}
+  name: {{ include "matrix.fullname" . }}-synapse-config
+  {{- end }}
   labels:
 {{ include "matrix.labels" . | nindent 4}}
 {{ include "matrix.synapse.labels" . | nindent 4}}

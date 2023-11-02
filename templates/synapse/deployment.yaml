@@ -82,6 +82,11 @@ spec:
               mountPath: /data/keys
             - name: media-store
               mountPath: /data/media_store
+            {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
+            - name: redis-crt
+              mountPath: /data/certs/redis
+              readOnly: true
+            {{- end }}
             {{- if or .Values.bridges.whatsapp.enabled .Values.bridges.discord.enabled .Values.bridges.irc.enabled }}
             - name: bridges
               mountPath: /bridges
@@ -118,8 +123,13 @@ spec:
           {{- end }}
       volumes:
         - name: synapse-config
+          {{- if .Values.externalSecret.enabled }}
           secret:
             secretName: {{ include "matrix.fullname" . }}-synapse-config
+          {{- else }}
+          configMap:
+            name: {{ include "matrix.fullname" . }}-synapse-config
+          {{- end }}
         - name: synapse-log-config
           configMap:
             name: {{ include "matrix.fullname" . }}-synapse-log-config
@@ -127,7 +137,13 @@ spec:
           persistentVolumeClaim:
             claimName: {{ include "matrix.fullname" . }}-signing-key
         - name: media-store
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: {{ include "matrix.fullname" . }}-media-store
+        {{- if and .Values.redis.enabled .Values.redis.tls.enabled }}
+         - name: redis-crt
+          secret:
+            secretName: {{ include "matrix.fullname" . }}-redis-crt
+        {{- end }}
         {{- if or .Values.bridges.whatsapp.enabled .Values.bridges.discord.enabled .Values.bridges.irc.enabled }}
         - name: bridges
           persistentVolumeClaim:

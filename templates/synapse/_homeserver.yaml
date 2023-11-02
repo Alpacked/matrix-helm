@@ -215,6 +215,7 @@ listeners:
     resources:
       - names: [client, federation]
         compress: false
+
   - port: 9093
     bind_address: '127.0.0.1'
     type: http
@@ -255,10 +256,39 @@ listeners:
 #
 #dummy_events_threshold: 5
 
-worker_replication_secret: "Ahpheiv2uib9Sa8iT3iLah9ees1oobee8Aiphi0aiVae/ch1oh"
+worker_replication_secret: {{- randAlphaNum 64 -}}
 
 redis:
-    enabled: false
+  enabled: {{ .Values.redis.enabled }}
+  {{- if .Values.redis.enabled }}
+    {{- if .Values.externalSecret.enabled }}
+  host: {{ "{{" }} .redis_host {{ "}}" }}
+  port: {{ "{{" }} .redis_port {{ "}}" }}
+    {{- else }}
+  host: "{{ include "matrix.fullname" . }}-redis"
+  port: "6379"
+    {{- end }}
+  {{- else }}
+  host: {{ .Values.redis.hostname }}
+  port: {{ .Values.redis.port }}
+  {{- end }}
+
+  {{- if .Values.redis.auth.enabled }}
+    {{- if .Values.externalSecret.enabled }}
+  password: {{ "{{" }} .redis_password {{ "}}" }}
+  dbid: {{ "{{" }} .redis_database {{ "}}" }}
+    {{- else }}
+  password: {{ .Values.redis.auth.password }}
+  dbid: {{ .Values.redis.auth.database }}
+    {{- end }}
+  {{- end }}
+
+  use_tls: {{ .Values.redis.tls.enabled }}
+  {{- if .Values.redis.tls.enabled }}
+  certificate_file: "/data/certs/redis/{{ .Values.redis.tls.certFilename }}"
+  private_key_file: "/data/certs/redis/{{ .Values.redis.tls.certKeyFilename }}"
+  ca_file: "/data/certs/redis/{{ .Values.redis.tls.certCAFilename }}"
+  {{- end }}
 
 
 ## Homeserver blocking ##
@@ -604,24 +634,35 @@ acme:
 ## Database ##
 
 database:
-    # The database engine name
-    name: "psycopg2"
-    # Arguments to pass to the engine
-    args:
-        user: {{ "{{" }} .postgres_user {{ "}}" }}
-        password: {{ "{{" }} .postgres_password {{ "}}" }}
-        database: {{ "{{" }} .postgres_database {{ "}}" }}
-        
-        {{- if .Values.postgresql.enabled }}
-        host: "{{ include "matrix.fullname" . }}-postgresql"
-        port: "5432"
-        {{- else }}
-        host: {{ "{{" }} .postgres_host {{ "}}" }}
-        port: {{ "{{" }} .postgres_port {{ "}}" }}
-        {{- end }}
-        sslmode: {{ .Values.postgresql.sslMode }}
-        cp_min: 5
-        cp_max: 10
+  # The database engine name
+  name: "psycopg2"
+  # Arguments to pass to the engine
+  args:
+    {{- if .Values.externalSecret.enabled }}
+    user: {{ "{{" }} .postgres_user {{ "}}" }}
+    password: {{ "{{" }} .postgres_password {{ "}}" }}
+    database: {{ "{{" }} .postgres_database {{ "}}" }}
+    {{- else }}
+    user: {{ .Values.postgresql.auth.username }}
+    password: {{ .Values.postgresql.auth.password }}
+    database: {{ .Values.postgresql.auth.database }}
+    {{- end }}
+
+    {{- if .Values.postgresql.enabled }}
+      {{- if .Values.externalSecret.enabled }}
+    host: {{ "{{" }} .postgres_host {{ "}}" }}
+    port: {{ "{{" }} .postgres_port {{ "}}" }}
+      {{- else }}
+    host: "{{ include "matrix.fullname" . }}-postgresql"
+    port: "5432"
+      {{- end }}
+    {{- else }}
+    host: {{ .Values.postgresql.hostname }}
+    port: {{ .Values.postgresql.port }}
+    {{- end }}
+    sslmode: {{ .Values.postgresql.tls.sslMode }}
+    cp_min: 5
+    cp_max: 10
 
 # Number of events to cache in memory.
 #
@@ -736,6 +777,9 @@ enable_media_repo: true
 # Directory where uploaded images and attachments are stored.
 #
 media_store_path: "/data/media_store"
+
+# TODO: Make configuration more reusable
+{{- if .Values.externalSecret.enabled }}
 media_storage_providers:
   - module: s3_storage_provider.S3StorageProviderBackend
     store_local: True
@@ -749,6 +793,7 @@ media_storage_providers:
       endpoint_url: {{ "{{" }} .s3_endpoint {{ "}}" }}
       access_key_id: {{ "{{" }} .s3_access_key {{ "}}" }}
       secret_access_key: {{ "{{" }} .s3_secret_key {{ "}}" }}
+{{- end }}
 
 # Media storage providers allow media to be stored in different
 # locations.
@@ -895,6 +940,8 @@ max_spider_size: {{ .Values.matrix.urlPreviews.rules.maxSize }}
 #
 #recaptcha_siteverify_api: "https://www.recaptcha.net/recaptcha/api/siteverify"
 
+{{- if .Values.coturn.enabled -}}
+
 ## TURN ##
 
 # The public URIs of the TURN server to give to clients
@@ -927,6 +974,7 @@ turn_user_lifetime: 1h
 # valid account (e.g. by passing a CAPTCHA).
 
 turn_allow_guests: {{ .Values.coturn.allowGuests }}
+{{- end }}
 
 ## Registration ##
 #
@@ -936,7 +984,8 @@ turn_allow_guests: {{ .Values.coturn.allowGuests }}
 # Enable registration for new users.
 #
 enable_registration: {{ .Values.matrix.registration.enabled }}
-enable_registration_without_verification: true
+enable_registration_without_verification: {{ .Values.matrix.security.enableRegistrationWithoutVerification }}
+
 # Optional account validity configuration. This allows for accounts to be denied
 # any request after a given period.
 #
@@ -1026,7 +1075,7 @@ registrations_require_3pid:
 # If set, allows registration of standard or admin accounts by anyone who
 # has the shared secret, even if registration is otherwise disabled.
 #
-{{- if .Values.matrix.registration.sharedSecret }}
+{{- if not (eq .Values.matrix.registration.sharedSecret "") }}
 registration_shared_secret: {{ .Values.matrix.registration.sharedSecret }}
 {{- end }}
 
@@ -1272,7 +1321,7 @@ app_service_config_files:
 # the registration_shared_secret is used, if one is given; otherwise,
 # a secret key is derived from the signing key.
 #
-{{- if .Values.matrix.security.macaroonSecretKey }}
+{{- if not (eq .Values.matrix.security.macaroonSecretKey "") }}
 macaroon_secret_key: {{ .Values.matrix.security.macaroonSecretKey }}
 {{- end }}
 
@@ -1364,7 +1413,7 @@ trusted_key_servers:
 # Uncomment the following to disable the warning that is emitted when the
 # trusted_key_servers include 'matrix.org'. See above.
 #
-suppress_key_server_warning: {{ .Values.matrix.security.supressKeyServerWarning }}
+suppress_key_server_warning: {{ .Values.matrix.security.suppressKeyServerWarning }}
 
 
 # The signing keys to use when acting as a trusted key server. If not specified
@@ -1529,6 +1578,8 @@ saml2_config:
 # See https://github.com/matrix-org/synapse/blob/master/docs/openid.md.
 #
 
+# TODO: Make configuration more reusable
+{{- if .Values.externalSecret.enabled }}
 oidc_providers:
   - idp_id: auth_provider
     idp_name: auth_provider
@@ -1545,6 +1596,7 @@ oidc_providers:
       config:
         localpart_template: {{ "{{" }} .oidc_localpart_template {{ "}}" }}
         display_name_template: {{ "{{" }} .oidc_display_name_template {{ "}}" }}
+{{- end }}
 
 oidc_config:
   # Uncomment the following to enable authorization against an OpenID Connect

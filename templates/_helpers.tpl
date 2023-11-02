@@ -107,8 +107,8 @@ Helper function to get a postgres connection string for the database, with all o
 */}}
 {{- define "matrix.postgresUri" -}}
 {{- if .Values.postgresql.enabled -}}
-postgres://{{ .Values.postgresql.username }}:{{ .Values.postgresql.password }}@{{ include "matrix.fullname" . }}-postgresql/%s{{ if .Values.postgresql.ssl }}?ssl=true&sslmode={{ .Values.postgresql.sslMode}}{{ end }}
+postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "matrix.fullname" . }}-postgresql/%s{{ if .Values.postgresql.tls.enabled }}?ssl=true&sslmode={{ .Values.postgresql.tls.sslMode}}{{ end }}
 {{- else -}}
-postgres://{{ .Values.postgresql.username }}:{{ .Values.postgresql.password }}@{{ .Values.postgresql.hostname }}:{{ .Values.postgresql.port }}/%s{{ if .Values.postgresql.ssl }}?ssl=true&sslmode={{ .Values.postgresql.sslMode }}{{ end }}
+postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Values.postgresql.hostname }}:{{ .Values.postgresql.port }}/%s{{ if .Values.postgresql.tls.enabled }}?ssl=true&sslmode={{ .Values.postgresql.tls.sslMode }}{{ end }}
 {{- end }}
 {{- end }}
