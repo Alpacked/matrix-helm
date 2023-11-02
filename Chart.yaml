@@ -1,6 +1,6 @@
 apiVersion: v2
 name: matrix
-description: A Helm chart to deploy a Matrix homeserver stack into Kubernetes
+description: A helm chart for Matrix homeserver, element web-client, Jitsi conference and other components. This repo uses the [helm chart](https://github.com/typokign/matrix-chart) developed by @typokign as a basis.
 icon: "https://matrix.org/images/matrix-logo-white.svg"
 home: "https://github.com/Alpacked/matrix-helm"
 sources:
