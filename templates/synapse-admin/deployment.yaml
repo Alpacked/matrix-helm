@@ -24,6 +24,9 @@ spec:
         - name: "synapse-admin"
           image: "{{ .Values.synapseAdmin.image.repository }}:{{ .Values.synapseAdmin.image.tag }}"
           imagePullPolicy: {{ .Values.synapseAdmin.image.pullPolicy }}
+          env:
+            - name: REACT_APP_SERVER
+              value: "{{- ternary "https://" "http://" .Values.synapseAdmin.useSecureConnection }}{{ .Values.matrix.serverName }}"
           ports:
             - name: http
               containerPort: 80

@@ -60,6 +60,8 @@ spec:
               mountPath: /var/tmp
           securityContext:
             capabilities:
+              add:
+                - NET_BIND_SERVICE
               drop:
                 - ALL
             readOnlyRootFilesystem: true

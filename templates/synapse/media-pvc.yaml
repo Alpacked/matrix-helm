@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "matrix.fullname" . }}-signing-key
+  name: {{ include "matrix.fullname" . }}-media-store
   labels:
 {{ include "matrix.labels" . | indent 4}}
 {{ include "matrix.synapse.labels" . | indent 4}}
   annotations:
     helm.sh/resource-policy: keep
 spec:
-  {{- if .Values.volumes.signingKey.storageClass }}
-  storageClassName: {{ .Values.volumes.signingKey.storageClass }}
+  {{- if .Values.volumes.media.storageClass }}
+  storageClassName: {{ .Values.volumes.media.storageClass }}
   {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.volumes.signingKey.capacity }}
+      storage: {{ .Values.volumes.media.capacity }}
