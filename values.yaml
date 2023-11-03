@@ -389,6 +389,10 @@ synapse:
   labels:
     component: synapse
 
+  # These plugins will be installed via pip3 install command at the start of synapse container
+  plugins:
+    - git+https://github.com/matrix-org/synapse-s3-storage-provider.git
+
   # Prometheus metrics for Synapse
   # https://github.com/matrix-org/synapse/blob/master/docs/metrics-howto.md
   metrics:
