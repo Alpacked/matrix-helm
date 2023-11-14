@@ -57,8 +57,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ matrix.platform }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: type=image,name=${{ vars.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Scan Docker image for vulnerabilities
         id: container-scan
@@ -74,6 +72,17 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ steps.container-scan.outputs.sarif }}
+
+      - name: Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: ${{ vars.CONTEXT }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: ${{ matrix.platform }}
+          cache-to: type=gha,mode=max
+          outputs: type=image,name=${{ vars.IMAGE_NAME }},push-by-digest=true,name-canonical=true
 
       - name: Export Digest
         run: |
