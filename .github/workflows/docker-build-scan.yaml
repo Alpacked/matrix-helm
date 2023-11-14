@@ -37,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ vars.IMAGE_NAME }}
           labels: |
             org.opencontainers.image.revision=${{ github.SHA }}
           tags: |
@@ -47,7 +47,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ env.CONTEXT }}
+          context: ${{ vars.CONTEXT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -57,7 +57,7 @@ jobs:
         uses: crazy-max/ghaction-container-scan@v3
         with:
           image: ${{ steps.meta.outputs.tags }}
-          dockerfile: ${{ env.CONTEXT }}/Dockerfile
+          dockerfile: ${{ vars.CONTEXT }}/Dockerfile
           severity_threshold: HIGH
           annotations: true
 
