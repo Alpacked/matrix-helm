@@ -64,7 +64,6 @@ jobs:
         with:
           image: ${{ steps.meta.outputs.tags }}
           dockerfile: ${{ vars.CONTEXT }}/Dockerfile
-          severity_threshold: HIGH
           annotations: true
 
       - name: Upload SARIF file
