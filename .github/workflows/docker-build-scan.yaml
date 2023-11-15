@@ -23,7 +23,7 @@ jobs:
 
       - name: Configure Docker
         id: meta
-        uses: ./.github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -52,7 +52,7 @@ jobs:
 
       - name: Configure Docker
         id: meta
-        uses: ./.github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -96,7 +96,7 @@ jobs:
 
       - name: Configure Docker
         id: meta
-        uses: ./.github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}

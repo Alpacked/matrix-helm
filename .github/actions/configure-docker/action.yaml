@@ -17,7 +17,7 @@ inputs:
     description: Auth token or password fo login in image registry
     required: true
 
-ouptuts:
+outputs:
   image_tags:
     description: Docker image metadata tags
     value: ${{ steps.meta.outputs.tags }}
