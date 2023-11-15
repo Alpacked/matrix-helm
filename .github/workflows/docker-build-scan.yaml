@@ -18,16 +18,16 @@ jobs:
       contents: read
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure Docker
         id: meta
-        uses: .github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker.yaml
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -40,22 +40,23 @@ jobs:
           cache-to: type=gha,mode=max
 
   scan:
+    needs: build
     runs-on: ubuntu-latest
     environment: matrix-synapse
     permissions:
       contents: read
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure Docker
         id: meta
-        uses: .github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker.yaml
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Load Docker image
         uses: docker/build-push-action@v5
@@ -83,15 +84,19 @@ jobs:
           sarif_file: ${{ steps.container-scan.outputs.sarif }}
 
   push:
+    needs: scan
     runs-on: ubuntu-latest
     environment: matrix-synapse
     permissions:
       contents: read
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Configure Docker
         id: meta
-        uses: .github/actions/configure-docker.yaml
+        uses: ./.github/actions/configure-docker.yaml
         with:
           image_name: ${{ vars.IMAGE_NAME }}
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
