@@ -33,8 +33,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ vars.CONTEXT }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.image_tags }}
+          labels: ${{ steps.meta.outputs.image_labels }}
           platforms: ${{ env.PLATFORMS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -63,8 +63,8 @@ jobs:
         with:
           load: true
           context: ${{ vars.CONTEXT }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.image_tags }}
+          labels: ${{ steps.meta.outputs.image_labels }}
           platforms: ${{ env.PLATFORMS }}
           cache-from: type=gha
 
@@ -72,7 +72,7 @@ jobs:
         id: container-scan
         uses: crazy-max/ghaction-container-scan@v3
         with:
-          image: ${{ steps.meta.outputs.tags }}
+          image: ${{ steps.meta.outputs.image_tags }}
           dockerfile: ${{ vars.CONTEXT }}/Dockerfile
           severity_threshold: HIGH
           annotations: true
@@ -110,7 +110,7 @@ jobs:
         with:
           push: true
           context: ${{ vars.CONTEXT }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.image_tags }}
+          labels: ${{ steps.meta.outputs.image_labels }}
           platforms: ${{ env.PLATFORMS }}
           cache-from: type=gha
