@@ -71,19 +71,13 @@ jobs:
           cache-from: type=gha
 
       - name: Scan Docker image for vulnerabilities
-        id: container-scan
-        uses: docker/scout-action@v1
+        id: scan
+        uses: anchore/scan-action@v3
         with:
-          command: cves
-          only-severities: critical,high
+          fail-build: true
+          severity-cutoff: high
+          output-format: table
           image: ${{ steps.meta.outputs.image_tags }}
-          sarif-file: sarif.output.json
-          summary: true
-
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: sarif.output.json
 
   push:
     needs: scan
