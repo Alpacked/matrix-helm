@@ -23,6 +23,10 @@ maintainers:
     url: "https://github.com/v-starodubov/"
 
 dependencies:
+  - name: jitsi-meet
+    version: 1.3.8
+    repository: https://jitsi-contrib.github.io/jitsi-helm
+    condition: jitsi-meet.enabled
   - name: postgresql
     version: 13.2.0
     repository: https://charts.bitnami.com/bitnami

@@ -68,4 +68,20 @@ spec:
                 port:
                   number: {{ .Values.synapse.service.federation.port }}
     {{- end }}
+    {{- if .Values.jitsi-meet.enabled }}
+    - host: {{ .Values.ingress.hosts.jitsi }}
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ include "matrix.fullname" . }}-jvb"
+                port:
+                  {{- if and .Values.jitsi-meet.jvb.nodePort (or (eq .Values.jitsi-meet.jvb.service.type "NodePort") (eq .Values.jitsi-meet.jvb.service.type "LoadBalancer")) }}
+                  number: {{ .Values.jitsi-meet.jvb.nodePort }}
+                  {{- else }}
+                  number: {{ .Values.jitsi-meet.jvb.UDPPort }}
+                  {{- end }}
+    {{- end }}
 {{- end }}
