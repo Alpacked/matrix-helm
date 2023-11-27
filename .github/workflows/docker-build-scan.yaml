@@ -77,6 +77,7 @@ jobs:
           fail-build: true
           severity-cutoff: high
           output-format: table
+          only-fixed: true
           image: ${{ steps.meta.outputs.image_tags }}
 
   push:
