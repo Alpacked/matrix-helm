@@ -574,9 +574,10 @@ coturn:
     component: coturn
 
 # https://github.com/jitsi-contrib/jitsi-helm/blob/main/values.yaml
-jitsi-meet:
+jitsi:
   # Set to false to disable the included deployment of Jitsi video conferencing
   enabled: false
+  publicURL: "meet.example.com"
 
   global:
     podLabels:
@@ -587,6 +588,9 @@ jitsi-meet:
       repository: "jitsi/web"
       tag: "stable"
     replicaCount: 1
+    service:
+      type: ClusterIP
+      port: 80
 
   jicofo:
     image:
@@ -608,6 +612,7 @@ jitsi-meet:
     service:
       enabled: true
       type: ClusterIP
+      externalTrafficPolicy: ""
 
   jibri:
     ## Enabling Jibri will allow users to record

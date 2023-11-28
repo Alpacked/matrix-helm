@@ -15,6 +15,18 @@ Installed components:
 {{- if .Values.coturn.enabled }}
  - Coturn ({{ .Values.coturn.image.repository }}:{{ .Values.coturn.image.tag }})
 {{- end }}
+{{- if .Values.jitsi.enabled }}
+ - Jitsi:
+    Web ({{ .Values.jitsi.web.image.repository }}:{{ .Values.jitsi.web.image.tag }})
+    Conference Focus ({{ .Values.jitsi.jicofo.image.repository }}:{{ .Values.jitsi.jicofo.image.tag }})
+    Videobridge ({{ .Values.jitsi.jvb.image.repository }}:{{ .Values.jitsi.jvb.image.tag }})
+{{- if .Values.jitsi.jibri.enabled }}
+    Jibri ({{ .Values.jitsi.jibri.image.repository }}:{{ .Values.jitsi.jibri.image.tag }})
+{{- end }}
+{{- if .Values.jitsi.prosody.enabled }}
+    Prosody ({{ .Values.jitsi.prosody.image.repository }}:{{ .Values.jitsi.prosody.image.tag }})
+{{- end }}
+{{- end }}
 {{- if .Values.mail.relay.enabled }}
  - Exim Relay ({{ .Values.mail.relay.image.repository }}:{{ .Values.mail.relay.image.tag }})
 {{- end }}
@@ -34,6 +46,9 @@ Thank you for installing Alpacked/matrix-helm! If you have any questions or run 
 Your Synapse homeserver should soon be available at https://{{ .Values.ingress.hosts.synapse }}
 {{- if .Values.riot.enabled }}
 Your Element Web instance should soon be available at https://{{ .Values.ingress.hosts.riot }}
+{{- end }}
+{{- if .Values.jitsi.enabled }}
+Your Jitsi Videocalls should soon be available at https://{{ .Values.ingress.hosts.jitsi }}
 {{- end }}
 {{- end }}
 
