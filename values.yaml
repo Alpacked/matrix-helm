@@ -636,6 +636,10 @@ jitsi:
     image:
       repository: "jitsi/prosody"
       tag: "stable"
+    persistence:
+      enabled: false
+      storageClassName: ""
+      size: 3Gi
 
 # Settings for email notifications
 mail:
