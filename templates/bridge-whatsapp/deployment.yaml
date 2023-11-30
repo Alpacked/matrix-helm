@@ -54,7 +54,7 @@ spec:
       initContainers:
         - name: "load-config"
           image: "{{ .Values.bridges.whatsapp.image.repository }}:{{ .Values.bridges.whatsapp.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.whatsapp.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.whatsapp.image.pullPolicy }}
           command: ["sh"]
           args: ["-c", "cp /load/config.yaml /data/config.yaml"]
           volumeMounts:
@@ -71,7 +71,7 @@ spec:
             allowPrivilegeEscalation: false
         - name: "generate-config"
           image: "{{ .Values.bridges.whatsapp.image.repository }}:{{ .Values.bridges.whatsapp.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.whatsapp.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.whatsapp.image.pullPolicy }}
           command: ["mautrix-whatsapp"]
           args: ["-g", "-c", "/data/config.yaml", "-r", "/bridges/whatsapp.yaml"]
           volumeMounts:
@@ -92,7 +92,7 @@ spec:
       containers:
         - name: "bridge-whatsapp"
           image: "{{ .Values.bridges.whatsapp.image.repository }}:{{ .Values.bridges.whatsapp.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.whatsapp.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.whatsapp.image.pullPolicy }}
           command: ["mautrix-whatsapp"]
           args: ["-c", "/data/config.yaml"]
           ports:

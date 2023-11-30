@@ -32,7 +32,7 @@ spec:
       containers:
         - name: "riot"
           image: "{{ .Values.riot.image.repository }}:{{ .Values.riot.image.tag }}"
-          imagePullPolicy: {{ .Values.riot.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.riot.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080

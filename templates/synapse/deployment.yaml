@@ -37,7 +37,7 @@ spec:
       # initContainers:
       #   - name: generate-signing-key
       #     image: "{{ .Values.synapse.image.repository }}:{{ .Values.synapse.image.tag }}"
-      #     imagePullPolicy: {{ .Values.synapse.image.pullPolicy }}
+      #     imagePullPolicy: {{ default "IfNotPresent" .Values.synapse.image.pullPolicy }}
       #     env:
       #       - name: SYNAPSE_SERVER_NAME
       #         value: {{ .Values.matrix.serverName }}
@@ -61,7 +61,7 @@ spec:
       containers:
         - name: "synapse"
           image: "{{ .Values.synapse.image.repository }}:{{ .Values.synapse.image.tag }}"
-          imagePullPolicy: {{ .Values.synapse.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.synapse.image.pullPolicy }}
           env:
             - name: SYNAPSE_PLUGINS
               value: {{ join ";" .Values.synapse.plugins }}
