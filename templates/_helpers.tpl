@@ -53,6 +53,15 @@ Synapse specific labels
 {{- end -}}
 
 {{/*
+Matrix user validation service specific labels
+*/}}
+{{- define "matrix.uvs.labels" -}}
+{{- range $key, $val := .Values.matrix.uvs.labels -}}
+{{ $key }}: {{ $val }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Element specific labels
 */}}
 #TOOO: Change riot to element

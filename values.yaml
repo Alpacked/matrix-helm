@@ -206,6 +206,32 @@ matrix:
   # Human readable reason for why the homeserver is blocked
   disabledMessage: ""
 
+  # Matrix user verification service
+  uvs:
+    enabled: false
+    image:
+      repository: "matrixdotorg/matrix-user-verification-service"
+      tag: "v3.0.0"
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    # Provide here access token for verification service or it will be generated randomly
+    accessToken: ""
+    # Disable check for non private IP range of homeserver. E.g. set to `true` if your homeserver domain resolves to a private IP.
+    disableIpBlacklist: true
+    # Auth token to protect the API
+    # If this is set any calls to the provided API endpoints
+    # need have the header "Authorization: Bearer <token>".
+    authToken: ""
+    # Log level, see choices here: https://github.com/winstonjs/winston#logging-levels
+    logLevel: "info"
+
+    service:
+      type: ClusterIP
+      port: 3000
+
+    labels:
+      component: uvs
+
   logging:
     # Root log level is the default log level for log outputs that do not have more
     # specific settings.
@@ -446,8 +472,9 @@ riot:
 
   baseUrl: https://matrix.example.com
 
+  # Use this value to link with external Jitsi instance
   jitsi:
-    domain: meet.example.com
+    domain: ""
 
   # Organization/enterprise branding
   branding:
@@ -578,6 +605,10 @@ jitsi:
   # Set to false to disable the included deployment of Jitsi video conferencing
   enabled: false
   publicURL: "meet.example.com"
+  enableGuests: false
+  enableAuth: true
+  extraCommonEnvs:
+    AUTH_TYPE: "matrix"
 
   global:
     podLabels:
@@ -640,6 +671,18 @@ jitsi:
       enabled: false
       storageClassName: ""
       size: 3Gi
+    podSecurityContext:
+      fsGroup: 102
+    extraEnvFrom:
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-uvs'
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-jicofo'
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-jvb'
+      - configMapRef:
+          name: '{{ include "matrix.fullname" . }}-common'
+
 
 # Settings for email notifications
 mail:
