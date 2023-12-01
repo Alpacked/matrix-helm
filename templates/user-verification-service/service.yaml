@@ -14,5 +14,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app.kubernetes.io/name: {{ include "matrix.name" . }}-synapse
+    app.kubernetes.io/name: {{ include "matrix.name" . }}-uvs
 {{- end }}

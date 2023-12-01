@@ -37,7 +37,7 @@ spec:
             - name: UVS_DISABLE_IP_BLACKLIST
               value: {{ default "true" .Values.matrix.uvs.disableIpBlacklist | quote }}
             - name: UVS_LISTEN_ADDRESS
-              value: "127.0.0.1"
+              value: "0.0.0.0"
             - name: UVS_PORT
               value: {{ default "3000" .Values.matrix.uvs.service.port | quote }}
             - name: UVS_LOG_LEVEL
@@ -55,4 +55,23 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 10
 {{- end }}

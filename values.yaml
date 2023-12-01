@@ -614,6 +614,13 @@ jitsi:
     podLabels:
       component: "jitsi"
 
+  # TODO: include /usr/share/jitsi-meet/.well-known/element/jitsi file in container
+  # Required for Jitsi/Matrix auth
+  #    location = /.well-known/element/jitsi {
+  #      default_type application/json;
+  #      add_header 'Access-Control-Allow-Origin' '*';
+  #      return 200 '{"auth": "openidtoken-jwt"}';
+  #    }
   web:
     image:
       repository: "jitsi/web"

@@ -130,15 +130,3 @@ data:
       #    deny  all;
       #}
     }
-  {{- if or .Values.jitsi.enabled .Values.riot.jitsi.domain }}
-  element-jitsi.conf: |
-    {
-      "auth": "openidtoken-jwt"
-    }
-  matrix-cilent.conf: |
-    {
-      "im.vector.riot.jitsi": {
-          "preferredDomain": {{ ternary .Values.jitsi.publicURL .Values.riot.jitsi.domain .Values.jitsi.enabled | quote }}
-      }
-    }
-  {{- end }}
