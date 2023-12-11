@@ -1,0 +1,11 @@
+{{- if .Values.jitsi.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matrix-jitsi-web-config
+  labels:
+{{ include "matrix.labels" . | nindent 4}}
+data:
+  jitsi.json: |
+    {"auth": "openidtoken-jwt"}
+{{- end }}

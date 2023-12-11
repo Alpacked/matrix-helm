@@ -26,7 +26,10 @@ spec:
           imagePullPolicy: {{ default "IfNotPresent" .Values.matrix.uvs.image.pullPolicy }}
           env:
             - name: UVS_ACCESS_TOKEN
-              value: {{ include "matrix.uvs.accessToken" . }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "matrix.fullname" . }}-prosody-uvs
+                  key: MATRIX_UVS_ACCESS_TOKEN
             - name: UVS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:

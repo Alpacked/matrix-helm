@@ -50,14 +50,6 @@ spec:
               name: riot-config
               subPath: default.conf
               readOnly: true
-            - mountPath: /usr/share/nginx/html/.well-known/element/jitsi
-              name: riot-config
-              subPath: element-jitsi.conf
-              readOnly: true
-            - mountPath: /usr/share/nginx/html/.well-known/matrix/client
-              name: riot-config
-              subPath: matrix-cilent.conf
-              readOnly: true
             - mountPath: /var/cache/nginx
               name: ephemeral
               subPath: cache
