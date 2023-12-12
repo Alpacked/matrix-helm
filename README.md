@@ -1,23 +1,63 @@
-# matrix
+# Matrix Helm Chart
 
 ![Version: 2.9.0](https://img.shields.io/badge/Version-2.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.23.0](https://img.shields.io/badge/AppVersion-1.23.0-informational?style=flat-square)
+[![Docker Build and Scan Image](https://github.com/Alpacked/matrix-helm/actions/workflows/docker-build-scan.yaml/badge.svg?branch=master)](https://github.com/Alpacked/matrix-helm/actions/workflows/docker-build-scan.yaml)
 
 A helm chart for Matrix homeserver, element web-client, Jitsi conference and other components. This repo uses the [helm chart](https://github.com/typokign/matrix-chart) developed by @typokign as a basis.
-
-**Homepage:** <https://github.com/Alpacked/matrix-helm>
-
-## Maintainers
-
-| Name | Email | Url |
-| ---- | ------ | --- |
-| David Cruz | <david@typokign.com> | <https://github.com/typokign/> |
-| Yevhenii Hordashnyk | <yevhenii@alpacked.io> | <https://github.com/jradikk/> |
-| Volodymyr Starodubov | <volodymyr.starodubov@alpacked.io> | <https://github.com/v-starodubov/> |
-
 ## Source Code
 
 * <https://github.com/dacruz21/matrix-chart>
 * <https://github.com/Alpacked/matrix-helm>
+
+## Table of Contents
+- [Features](#features)
+- [Configuration](#configuration)
+- [Caveats](#caveats)
+- [Requirements](#requirements)
+- [Values](#values)
+- [Maintainers](#maintainers)
+
+## Features
+
+- Latest version of Synapse with plugin installation support.
+- (Optional) Element (Riot) Web ([vectorim/element-web](https://github.com/element-hq/element-web))
+- (Optional) Synapse Admin Web ([awesometechnologies/synapse-admin](https://github.com/Awesome-Technologies/synapse-admin))
+- (Optional) User Verification Service ([matrixdotorg/matrix-user-verification-service](https://github.com/matrix-org/matrix-user-verification-service))
+- (Optional) Exim relay or external mail server for email notifications ([devture/exim-relay](https://github.com/devture/exim-relay))
+- (Optional) Coturn TURN server for VoIP calls ([coturn/coturn](https://github.com/coturn/coturn))
+- (Optional) Jitsi for video conferences with Matrix authorization ([jitsi-contrib/jitsi-helm](https://github.com/jitsi-contrib/jitsi-helm))
+- (Optional) PostgreSQL database cluster ([bitnami/postgresql](https://artifacthub.io/packages/helm/bitnami/postgresql))
+- (Optional) Redis for multi-worker deployment ([bitnami/redis](https://artifacthub.io/packages/helm/bitnami/redis))
+- (Optional) IRC bridge ([matrixdotorg/matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc))
+- (Optional) WhatsApp bridge ([tulir/mautrix-whatsapp](https://github.com/mautrix/whatsapp))
+- (Optional) Discord bridge ([halfshot/matrix-appservice-discord](https://github.com/matrix-org/matrix-appservice-discord))
+- Fully configurable via values.yaml
+- NGINX Ingress definition for federated Synapse, Admin, Element (Riot) and Jitsi.
+
+## Configuration
+
+The basic configuration of chart is done in default [values.yaml](values.yaml), main configuration by user is:
+1. Enable optional services that you require.
+2. Provide valid DNS names for applications.
+3. Set persistent storages for your database and other apps, that require it.
+4. Configure ingress for service endpoints (or use predefined for NGINX Ingress).
+5. Deploy to your k8s cluster.
+
+## Caveats
+
+Jitsi application is configured to use Matrix authorization by default, but right now it can't be configured automatically via Helm chart installation.
+
+After deployment of Synapse required to create admin user and get access token, that can be provided via `.Values.matrix.uvs.accessToken`.
+
+More info about providing admin rights and API can be found [here](https://github.com/matrix-org/synapse/blob/develop/docs/usage/administration/admin_api/README.md).
+
+![](how-to-get-access-token.png)
+
+In future this can be changed (https://matrix.org/blog/2023/09/better-auth) and currently Matrix team testing side-car [matrix-authentication-service](https://matrix-org.github.io/matrix-authentication-service/).
+
+Despite Redis included in this chart, the multi-worker Synapse is not tested and can be not fully configured in [homeserver.yaml](templates/synapse/_homeserver.yaml).
+
+External Secret manifest can be used for more secure value storage, but it doesn't contain all chart values right not.
 
 ## Requirements
 
@@ -31,86 +71,83 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| bridges.affinity | bool | `false` |  |
-| bridges.discord.auth.botToken | string | `""` |  |
-| bridges.discord.auth.clientId | string | `""` |  |
-| bridges.discord.channelName | string | `"[Discord] :guild :name"` |  |
-| bridges.discord.data.capacity | string | `"512Mi"` |  |
-| bridges.discord.data.storageClass | string | `""` |  |
-| bridges.discord.defaultVisibility | string | `"public"` |  |
-| bridges.discord.enabled | bool | `false` |  |
+| bridges.affinity | bool | `false` | Recommended to leave this disabled to allow bridges to be scheduled on separate nodes. |
+| bridges.discord.auth | object | `{"botToken":"","clientId":""}` | Discord bot authentication |
+| bridges.discord.channelName | string | `"[Discord] :guild :name"` | The name of bridged rooms |
+| bridges.discord.data.capacity | string | `"512Mi"` | Size of the PVC to allocate for the SQLite database |
+| bridges.discord.data.storageClass | string | `""` | Storage class (optional) |
+| bridges.discord.defaultVisibility | string | `"public"` | Default visibility of bridged rooms (public/private) |
+| bridges.discord.enabled | bool | `false` | Set to true to enable the Discord bridge |
 | bridges.discord.image.pullPolicy | string | `"Always"` |  |
 | bridges.discord.image.repository | string | `"halfshot/matrix-appservice-discord"` |  |
 | bridges.discord.image.tag | string | `"v1.0.0"` |  |
-| bridges.discord.joinLeaveEvents | bool | `true` |  |
-| bridges.discord.presence | bool | `true` |  |
-| bridges.discord.readReceipt | bool | `true` |  |
+| bridges.discord.joinLeaveEvents | bool | `true` | Set to false to disable Discord notifications when a user joins/leaves the Matrix channel |
+| bridges.discord.presence | bool | `true` | Set to false to disable online/offline presence for Discord users |
+| bridges.discord.readReceipt | bool | `true` | Set to false to disable the Discord bot read receipt, which advances whenever the bot bridges a message |
 | bridges.discord.replicaCount | int | `1` |  |
 | bridges.discord.resources | object | `{}` |  |
-| bridges.discord.selfService | bool | `false` |  |
+| bridges.discord.selfService | bool | `false` | Set to true to allow users to bridge rooms themselves using !discord commands |
 | bridges.discord.service.port | int | `9005` |  |
 | bridges.discord.service.type | string | `"ClusterIP"` |  |
-| bridges.discord.typingNotifications | bool | `true` |  |
-| bridges.discord.users.nickname | string | `":nick"` |  |
-| bridges.discord.users.username | string | `":username#:tag"` |  |
-| bridges.irc.data.capacity | string | `"1Mi"` |  |
-| bridges.irc.database | string | `"matrix_irc"` |  |
+| bridges.discord.typingNotifications | bool | `true` | Set to false to disable typing notifications (only for Discord to Matrix) |
+| bridges.discord.users.nickname | string | `":nick"` | Nickname of bridged Discord users |
+| bridges.discord.users.username | string | `":username#:tag"` | Username of bridged Discord users |
+| bridges.irc.data.capacity | string | `"1Mi"` | Size of the data PVC to allocate |
+| bridges.irc.database | string | `"matrix_irc"` | Name of Postgres database to store IRC bridge data in |
 | bridges.irc.databaseSslVerify | bool | `true` |  |
-| bridges.irc.enabled | bool | `false` |  |
+| bridges.irc.enabled | bool | `false` | Set to true to enable the IRC bridge |
 | bridges.irc.image.pullPolicy | string | `"IfNotPresent"` |  |
 | bridges.irc.image.repository | string | `"matrixdotorg/matrix-appservice-irc"` |  |
 | bridges.irc.image.tag | string | `"release-1.0.1"` |  |
-| bridges.irc.presence | bool | `false` |  |
+| bridges.irc.presence | bool | `false` | Whether to enable presence (online/offline indicators).  |
 | bridges.irc.replicaCount | int | `1` |  |
 | bridges.irc.resources | object | `{}` |  |
-| bridges.irc.servers."chat.freenode.net".name | string | `"Freenode"` |  |
-| bridges.irc.servers."chat.freenode.net".port | int | `6697` |  |
-| bridges.irc.servers."chat.freenode.net".ssl | bool | `true` |  |
+| bridges.irc.servers."chat.freenode.net".name | string | `"Freenode"` | A human-readable short name. |
+| bridges.irc.servers."chat.freenode.net".port | int | `6697` | The port to connect to. Optional. |
+| bridges.irc.servers."chat.freenode.net".ssl | bool | `true` | Whether to use SSL or not. Default: false. |
 | bridges.irc.service.port | int | `9006` |  |
 | bridges.irc.service.type | string | `"ClusterIP"` |  |
-| bridges.volume.accessMode | string | `"ReadWriteMany"` |  |
-| bridges.volume.capacity | string | `"1Mi"` |  |
-| bridges.volume.storageClass | string | `""` |  |
-| bridges.whatsapp.bot.avatar | string | `"mxc://maunium.net/NeXNQarUbrlYBiPCpprYsRqr"` |  |
-| bridges.whatsapp.bot.displayName | string | `"WhatsApp bridge bot"` |  |
-| bridges.whatsapp.bot.username | string | `"whatsappbot"` |  |
-| bridges.whatsapp.callNotices | bool | `true` |  |
-| bridges.whatsapp.communityName | string | `"whatsapp_{{.Localpart}}={{.Server}}"` |  |
-| bridges.whatsapp.connection.maxAttempts | int | `3` |  |
-| bridges.whatsapp.connection.qrRegenCount | int | `2` |  |
-| bridges.whatsapp.connection.reportRetry | bool | `true` |  |
-| bridges.whatsapp.connection.retryDelay | int | `-1` |  |
-| bridges.whatsapp.connection.timeout | int | `20` |  |
-| bridges.whatsapp.data.capacity | string | `"512Mi"` |  |
-| bridges.whatsapp.data.storageClass | string | `""` |  |
-| bridges.whatsapp.enabled | bool | `false` |  |
+| bridges.volume.accessMode | string | `"ReadWriteMany"` | Access mode of the shared volume. |
+| bridges.volume.capacity | string | `"1Mi"` | Capacity of the shared volume for storing bridge/appservice registration files |
+| bridges.volume.storageClass | string | `""` | Storage class (optional) |
+| bridges.whatsapp.bot | object | `{"avatar":"mxc://maunium.net/NeXNQarUbrlYBiPCpprYsRqr","displayName":"WhatsApp bridge bot","username":"whatsappbot"}` | Username and display name of the WhatsApp bridge bot |
+| bridges.whatsapp.callNotices | bool | `true` | Send notifications for incoming calls |
+| bridges.whatsapp.communityName | string | `"whatsapp_{{.Localpart}}={{.Server}}"` | Display name for communities. |
+| bridges.whatsapp.connection | object | `{"maxAttempts":3,"qrRegenCount":2,"reportRetry":true,"retryDelay":-1,"timeout":20}` | WhatsApp server connection settings |
+| bridges.whatsapp.connection.maxAttempts | int | `3` | Maximum number of connection attempts before failing |
+| bridges.whatsapp.connection.qrRegenCount | int | `2` | Number of QR codes to store, essentially multiplying the connection timeout |
+| bridges.whatsapp.connection.reportRetry | bool | `true` | Whether or not to notify the user when attempting to reconnect. Set to false to only report when maxAttempts has been reached |
+| bridges.whatsapp.connection.retryDelay | int | `-1` | Retry delay |
+| bridges.whatsapp.connection.timeout | int | `20` | WhatsApp server connection timeout (seconds) |
+| bridges.whatsapp.data.capacity | string | `"512Mi"` | Size of the PVC to allocate for the SQLite database |
+| bridges.whatsapp.data.storageClass | string | `""` | Storage class (optional) |
+| bridges.whatsapp.enabled | bool | `false` | Set to true to enable the WhatsApp bridge |
 | bridges.whatsapp.image.pullPolicy | string | `"Always"` |  |
 | bridges.whatsapp.image.repository | string | `"dock.mau.dev/tulir/mautrix-whatsapp"` |  |
 | bridges.whatsapp.image.tag | string | `"v0.10.3"` |  |
-| bridges.whatsapp.permissions.* | string | `"relaybot"` |  |
-| bridges.whatsapp.relaybot.enabled | bool | `false` |  |
-| bridges.whatsapp.relaybot.invites | list | `[]` |  |
-| bridges.whatsapp.relaybot.management | string | `"!foo:example.com"` |  |
+| bridges.whatsapp.permissions | object | `{"*":"relaybot"}` | Permissions for using the bridge. |
+| bridges.whatsapp.relaybot.enabled | bool | `false` | Set to true to enable the relaybot and management room |
+| bridges.whatsapp.relaybot.invites | list | `[]` | Users to invite to the management room automatically |
+| bridges.whatsapp.relaybot.management | string | `"!foo:example.com"` | Management room for the relay bot where status notifications are posted |
 | bridges.whatsapp.replicaCount | int | `1` |  |
 | bridges.whatsapp.resources | object | `{}` |  |
 | bridges.whatsapp.service.port | int | `29318` |  |
 | bridges.whatsapp.service.type | string | `"ClusterIP"` |  |
-| bridges.whatsapp.users.displayName | string | `"{{if .Notify}}{{.Notify}}{{else}}{{.Jid}}{{end}} (WA)"` |  |
-| bridges.whatsapp.users.username | string | `"whatsapp_{{.}}"` |  |
-| coturn.allowGuests | bool | `true` |  |
-| coturn.enabled | bool | `false` |  |
+| bridges.whatsapp.users.displayName | string | `"{{if .Notify}}{{.Notify}}{{else}}{{.Jid}}{{end}} (WA)"` | Display name for WhatsApp users |
+| bridges.whatsapp.users.username | string | `"whatsapp_{{.}}"` | Username for WhatsApp users |
+| coturn.allowGuests | bool | `true` | Whether to allow guests to use the TURN server |
+| coturn.enabled | bool | `false` | Set to true to enable the included deployment of Coturn |
 | coturn.image.pullPolicy | string | `"IfNotPresent"` |  |
 | coturn.image.repository | string | `"coturn/coturn"` |  |
 | coturn.image.tag | string | `"4.6.2"` |  |
-| coturn.kind | string | `"DaemonSet"` |  |
-| coturn.labels.component | string | `"coturn"` |  |
-| coturn.ports.from | int | `49152` |  |
-| coturn.ports.to | int | `49172` |  |
+| coturn.kind | string | `"DaemonSet"` | How to deploy Coturn |
+| coturn.labels | object | `{"component":"coturn"}` | Coturn specific labels |
+| coturn.ports | object | `{"from":49152,"to":49172}` | UDP port range for TURN connections |
 | coturn.replicaCount | int | `1` |  |
 | coturn.resources | object | `{}` |  |
-| coturn.service.type | string | `"ClusterIP"` |  |
-| coturn.sharedSecret | string | `""` |  |
-| coturn.uris[0] | string | `"turn:marix.example.com?transport=udp"` |  |
+| coturn.service.type | string | `"ClusterIP"` | The type of service to deploy for routing Coturn traffic |
+| coturn.sharedSecret | string | `""` | Shared secret for communication between Synapse and Coturn. |
+| coturn.uris | list | `["turn:marix.example.com?transport=udp"]` | URIs of the Coturn servers |
 | externalSecret.enabled | bool | `false` |  |
 | fullnameOverride | string | `""` |  |
 | imagePullSecrets | object | `{}` |  |
@@ -128,7 +165,7 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | jitsi.enableGuests | bool | `false` |  |
 | jitsi.enabled | bool | `false` |  |
 | jitsi.extraCommonEnvs.AUTH_TYPE | string | `"matrix"` |  |
-| jitsi.global.podLabels.component | string | `"jitsi"` |  |
+| jitsi.global | object | `{"podLabels":{"component":"jitsi"}}` | Jitsi specific labels |
 | jitsi.jibri.enabled | bool | `false` |  |
 | jitsi.jibri.image.repository | string | `"jjitsi/jibri"` |  |
 | jitsi.jibri.image.tag | string | `"stable"` |  |
@@ -170,80 +207,53 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | jitsi.web.replicaCount | int | `1` |  |
 | jitsi.web.service.port | int | `80` |  |
 | jitsi.web.service.type | string | `"ClusterIP"` |  |
-| mail.enabled | bool | `false` |  |
-| mail.external.host | string | `""` |  |
-| mail.external.password | string | `""` |  |
-| mail.external.port | int | `25` |  |
-| mail.external.requireTransportSecurity | bool | `true` |  |
-| mail.external.username | string | `""` |  |
-| mail.from | string | `"Matrix <matrix@example.com>"` |  |
-| mail.relay.enabled | bool | `false` |  |
-| mail.relay.image.pullPolicy | string | `"IfNotPresent"` |  |
-| mail.relay.image.repository | string | `"devture/exim-relay"` |  |
-| mail.relay.image.tag | string | `"4.96.2-r0-0"` |  |
-| mail.relay.labels.component | string | `"mail"` |  |
-| mail.relay.probes.liveness | object | `{}` |  |
-| mail.relay.probes.readiness | object | `{}` |  |
-| mail.relay.probes.startup | object | `{}` |  |
-| mail.relay.replicaCount | int | `1` |  |
-| mail.relay.resources | object | `{}` |  |
-| mail.relay.service.port | int | `25` |  |
-| mail.relay.service.type | string | `"ClusterIP"` |  |
-| mail.riotUrl | string | `""` |  |
-| matrix.adminEmail | string | `"admin@example.com"` |  |
-| matrix.blockNonAdminInvites | bool | `false` |  |
-| matrix.disabled | bool | `false` |  |
-| matrix.disabledMessage | string | `""` |  |
-| matrix.encryptByDefault | string | `"all"` |  |
-| matrix.federation.allowPublicRooms | bool | `false` |  |
-| matrix.federation.blacklist[0] | string | `"127.0.0.0/8"` |  |
-| matrix.federation.blacklist[1] | string | `"10.0.0.0/8"` |  |
-| matrix.federation.blacklist[2] | string | `"172.16.0.0/12"` |  |
-| matrix.federation.blacklist[3] | string | `"192.168.0.0/16"` |  |
-| matrix.federation.blacklist[4] | string | `"100.64.0.0/10"` |  |
-| matrix.federation.blacklist[5] | string | `"169.254.0.0/16"` |  |
-| matrix.federation.blacklist[6] | string | `"::1/128"` |  |
-| matrix.federation.blacklist[7] | string | `"fe80::/64"` |  |
-| matrix.federation.blacklist[8] | string | `"fc00::/7"` |  |
-| matrix.federation.enabled | bool | `false` |  |
-| matrix.hostname | string | `"matrix.example.com"` |  |
-| matrix.logging.rootLogLevel | string | `"DEBUG"` |  |
+| mail.enabled | bool | `false` | Set to false to disable all email notifications |
+| mail.external | object | `{"host":"","password":"","port":25,"requireTransportSecurity":true,"username":""}` | External mail server |
+| mail.from | string | `"Matrix <matrix@example.com>"` | Name and email address for outgoing mail |
+| mail.relay | object | `{"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"devture/exim-relay","tag":"4.96.2-r0-0"},"labels":{"component":"mail"},"probes":{"liveness":{},"readiness":{},"startup":{}},"replicaCount":1,"resources":{},"service":{"port":25,"type":"ClusterIP"}}` | Exim relay |
+| mail.riotUrl | string | `""` | Optional: Element instance URL. |
+| matrix.adminEmail | string | `"admin@example.com"` | Email address of the administrator |
+| matrix.blockNonAdminInvites | bool | `false` | Set to true to block non-admins from inviting users to any rooms |
+| matrix.disabled | bool | `false` | Set to true to globally block access to the homeserver |
+| matrix.disabledMessage | string | `""` | Human readable reason for why the homeserver is blocked |
+| matrix.encryptByDefault | string | `"all"` | Which types of rooms to enable end-to-end encryption on by default |
+| matrix.federation.allowPublicRooms | bool | `false` | Set to true to allow members of other homeservers to fetch *public* rooms |
+| matrix.federation.blacklist | list | `["127.0.0.0/8","10.0.0.0/8","172.16.0.0/12","192.168.0.0/16","100.64.0.0/10","169.254.0.0/16","::1/128","fe80::/64","fc00::/7"]` | IP addresses to blacklist federation requests to |
+| matrix.federation.enabled | bool | `false` | Set to true to enable federation and run an isolated homeserver |
+| matrix.federation.whitelist | list | `[]` | Whitelist of domains to federate with (empty for all domains except blacklisted) |
+| matrix.homeserverExtra | object | `{}` | Contents will be appended to the end of the default configuration. |
+| matrix.homeserverOverride | object | `{}` | Entirety of homeserver.yaml will be replaced with the contents, if set. |
+| matrix.hostname | string | `"matrix.example.com"` | Hostname where Synapse can be reached. |
+| matrix.logging.rootLogLevel | string | `"DEBUG"` | Root log level is the default log level for log outputs that do not have more specific settings. |
 | matrix.logging.sqlLogLevel | string | `"WARNING"` |  |
-| matrix.logging.synapseLogLevel | string | `"INFO"` |  |
-| matrix.presence | bool | `true` |  |
-| matrix.registration.allowGuests | bool | `false` |  |
-| matrix.registration.autoJoinRooms[0] | string | `"\"#lobby:matrix.example.com\""` |  |
-| matrix.registration.enabled | bool | `false` |  |
-| matrix.registration.sharedSecret | string | `""` |  |
-| matrix.retentionPeriod | string | `"7d"` |  |
-| matrix.search | bool | `true` |  |
-| matrix.security.enableRegistrationWithoutVerification | bool | `false` |  |
-| matrix.security.macaroonSecretKey | string | `""` |  |
-| matrix.security.suppressKeyServerWarning | bool | `true` |  |
-| matrix.serverName | string | `"matrix.example.com"` |  |
-| matrix.telemetry | bool | `false` |  |
-| matrix.uploads.maxPixels | string | `"32M"` |  |
-| matrix.uploads.maxSize | string | `"400M"` |  |
-| matrix.urlPreviews.enabled | bool | `true` |  |
-| matrix.urlPreviews.rules.ip.blacklist[0] | string | `"127.0.0.0/8"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[1] | string | `"10.0.0.0/8"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[2] | string | `"172.16.0.0/12"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[3] | string | `"192.168.0.0/16"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[4] | string | `"100.64.0.0/10"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[5] | string | `"169.254.0.0/16"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[6] | string | `"::1/128"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[7] | string | `"fe80::/64"` |  |
-| matrix.urlPreviews.rules.ip.blacklist[8] | string | `"fc00::/7"` |  |
-| matrix.urlPreviews.rules.maxSize | string | `"10M"` |  |
-| matrix.urlPreviews.rules.url | object | `{}` |  |
-| matrix.uvs.accessToken | string | `""` |  |
-| matrix.uvs.authToken | string | `""` |  |
-| matrix.uvs.disableIpBlacklist | bool | `true` |  |
+| matrix.logging.synapseLogLevel | string | `"INFO"` | The log level for the synapse server |
+| matrix.presence | bool | `true` | Set to false to disable presence (online/offline indicators) |
+| matrix.registration.allowGuests | bool | `false` | Allow users to join rooms as a guest |
+| matrix.registration.autoJoinRooms | list | `["\"#lobby:matrix.example.com\""]` | Rooms to automatically join all new users to |
+| matrix.registration.enabled | bool | `false` | Allow new users to register an account |
+| matrix.registration.required3Pids | list | `[]` | Required "3PIDs" - third-party identifiers such as email or msisdn (SMS) |
+| matrix.registration.sharedSecret | string | `""` | If set, allows registration of standard or admin accounts by anyone who has the shared secret, even if registration is otherwise disabled. |
+| matrix.retentionPeriod | string | `"7d"` | How long to keep redacted events in unredacted form in the database |
+| matrix.search | bool | `true` | Set to false to disable message searching |
+| matrix.security.enableRegistrationWithoutVerification | bool | `false` | Enable this if you want start matrix without any type of verification (email, captcha, or token-based) |
+| matrix.security.macaroonSecretKey | string | `""` | A secret which is used to sign access tokens. |
+| matrix.security.suppressKeyServerWarning | bool | `true` | This disables the warning that is emitted when the trustedKeyServers include 'matrix.org'. See below. |
+| matrix.serverName | string | `"matrix.example.com"` | Domain name of the server |
+| matrix.telemetry | bool | `false` | Enable anonymous telemetry to matrix.org |
+| matrix.uploads.maxPixels | string | `"32M"` | Max image size in pixels |
+| matrix.uploads.maxSize | string | `"400M"` | Max upload size in bytes |
+| matrix.urlPreviews.enabled | bool | `true` | Enable URL previews. |
+| matrix.urlPreviews.rules.ip | object | `{"blacklist":["127.0.0.0/8","10.0.0.0/8","172.16.0.0/12","192.168.0.0/16","100.64.0.0/10","169.254.0.0/16","::1/128","fe80::/64","fc00::/7"],"whitelist":[]}` | Whitelist and blacklist for crawlable IP addresses |
+| matrix.urlPreviews.rules.maxSize | string | `"10M"` | Maximum size of a crawlable page. Keep this low to prevent a DOS vector |
+| matrix.urlPreviews.rules.url | object | `{}` | Whitelist and blacklist based on URL pattern matching |
+| matrix.uvs.accessToken | string | `""` | Access token for Matrix Synapse API. |
+| matrix.uvs.authToken | string | `""` | Auth token to protect the API |
+| matrix.uvs.disableIpBlacklist | bool | `true` | Disable check for non private IP range of homeserver. E.g. set to `true` if your homeserver domain resolves to a private IP. |
 | matrix.uvs.enabled | bool | `false` |  |
 | matrix.uvs.image.pullPolicy | string | `"IfNotPresent"` |  |
 | matrix.uvs.image.repository | string | `"matrixdotorg/matrix-user-verification-service"` |  |
 | matrix.uvs.image.tag | string | `"v3.0.0"` |  |
-| matrix.uvs.labels.component | string | `"uvs"` |  |
+| matrix.uvs.labels | object | `{"component":"uvs"}` | UVS specific labels |
 | matrix.uvs.logLevel | string | `"info"` |  |
 | matrix.uvs.replicaCount | int | `1` |  |
 | matrix.uvs.service.port | int | `3000` |  |
@@ -263,89 +273,78 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | postgresql.primary.containerSecurityContext.runAsUser | int | `1001` |  |
 | postgresql.primary.initdb.args | string | `"--encoding=UTF8 --lc-collate=C --lc-ctype=C"` |  |
 | postgresql.primary.initdb.scriptsConfigMap | string | `"{{ .Release.Name }}-postgresql-initdb"` |  |
-| postgresql.primary.persistence.size | string | `"80Gi"` |  |
-| postgresql.primary.persistence.storageClass | string | `""` |  |
+| postgresql.primary.persistence.size | string | `"80Gi"` | Size of database storage |
+| postgresql.primary.persistence.storageClass | string | `""` | Storage class (optional) |
 | postgresql.primary.podSecurityContext.enabled | bool | `true` |  |
 | postgresql.primary.podSecurityContext.fsGroup | int | `1001` |  |
-| postgresql.tls.autoGenerated | bool | `true` |  |
+| postgresql.tls.autoGenerated | bool | `true` | Generate automatically self-signed TLS certificates (disable if you want use external certificate) |
 | postgresql.tls.certCAFilename | string | `""` |  |
 | postgresql.tls.certFilename | string | `""` |  |
 | postgresql.tls.certKeyFilename | string | `""` |  |
-| postgresql.tls.certificatesSecret | string | `""` |  |
+| postgresql.tls.certificatesSecret | string | `""` | Name of an existing secret that contains certificates. |
 | postgresql.tls.enabled | bool | `true` |  |
-| postgresql.tls.sslMode | string | `"require"` |  |
-| postgresql.volumePermissions.enabled | bool | `true` |  |
+| postgresql.tls.sslMode | string | `"require"` | Allowed modes: disable, allow, prefer, require, verify-ca, verify-full |
+| postgresql.volumePermissions | object | `{"enabled":true}` | Enable init container that changes the owner and group of the persistent volume |
 | redis.auth.database | string | `""` |  |
 | redis.auth.enabled | bool | `false` |  |
-| redis.auth.existingSecret | string | `""` |  |
+| redis.auth.existingSecret | string | `""` | Use this if you want to provide password (auth.existingSecretPasswordKey) via Kubernetes secret. |
 | redis.auth.password | string | `"pa$$w0rd"` |  |
-| redis.enabled | bool | `false` |  |
-| redis.hostname | string | `""` |  |
+| redis.enabled | bool | `false` | This must be enabled when using workers. |
+| redis.hostname | string | `""` | Set this if redis.enabled = false |
 | redis.image.repository | string | `"bitnami/redis"` |  |
 | redis.image.tag | string | `"7.2.3-debian-11-r0"` |  |
 | redis.port | int | `6379` |  |
 | redis.primary.containerSecurityContext.enabled | bool | `true` |  |
 | redis.primary.containerSecurityContext.runAsUser | int | `1001` |  |
-| redis.primary.persistence.size | string | `"1Gi"` |  |
-| redis.primary.persistence.storageClass | string | `""` |  |
+| redis.primary.persistence.size | string | `"1Gi"` | Size of redis storage |
+| redis.primary.persistence.storageClass | string | `""` | Storage class (optional) |
 | redis.primary.podSecurityContext.enabled | bool | `true` |  |
 | redis.primary.podSecurityContext.fsGroup | int | `1001` |  |
-| redis.tls.autoGenerated | bool | `true` |  |
+| redis.tls.autoGenerated | bool | `true` | Generate automatically self-signed TLS certificates (disable if you want use external certificate) |
 | redis.tls.certCAFilename | string | `""` |  |
 | redis.tls.certFilename | string | `""` |  |
 | redis.tls.certKeyFilename | string | `""` |  |
 | redis.tls.enabled | bool | `false` |  |
-| redis.tls.existingSecret | string | `""` |  |
-| redis.volumePermissions.enabled | bool | `true` |  |
+| redis.tls.existingSecret | string | `""` | Name of an existing secret that contains certificates. |
+| redis.volumePermissions | object | `{"enabled":true}` | Enable init container that changes the owner and group of the persistent volume |
 | riot.baseUrl | string | `"https://matrix.example.com"` |  |
-| riot.branding.authFooterLinks | list | `[]` |  |
-| riot.branding.authHeaderLogoUrl | string | `""` |  |
-| riot.branding.brand | string | `"Element"` |  |
-| riot.branding.welcomeBackgroundUrl | string | `""` |  |
-| riot.enabled | bool | `true` |  |
+| riot.branding | object | `{"authFooterLinks":[],"authHeaderLogoUrl":"","brand":"Element","welcomeBackgroundUrl":""}` | Organization/enterprise branding |
+| riot.branding.authFooterLinks | list | `[]` | Array of links to show at the bottom of the login screen |
+| riot.branding.authHeaderLogoUrl | string | `""` | Logo shown at top of login screen |
+| riot.branding.brand | string | `"Element"` | Shown in email notifications |
+| riot.branding.welcomeBackgroundUrl | string | `""` | Background of login splash screen |
+| riot.enabled | bool | `true` | Set to false to disable a deployment of Element. |
 | riot.image.pullPolicy | string | `"IfNotPresent"` |  |
 | riot.image.repository | string | `"vectorim/element-web"` |  |
 | riot.image.tag | string | `"v1.11.47"` |  |
-| riot.integrations.api | string | `"https://scalar.vector.im/api"` |  |
-| riot.integrations.enabled | bool | `true` |  |
-| riot.integrations.ui | string | `"https://scalar.vector.im/"` |  |
-| riot.integrations.widgets[0] | string | `"https://scalar.vector.im/_matrix/integrations/v1"` |  |
-| riot.integrations.widgets[1] | string | `"https://scalar.vector.im/api"` |  |
-| riot.integrations.widgets[2] | string | `"https://scalar-staging.vector.im/_matrix/integrations/v1"` |  |
-| riot.integrations.widgets[3] | string | `"https://scalar-staging.vector.im/api"` |  |
-| riot.integrations.widgets[4] | string | `"https://scalar-staging.riot.im/scalar/api"` |  |
-| riot.jitsi.domain | string | `""` |  |
-| riot.labels.component | string | `"element"` |  |
-| riot.labs[0] | string | `"feature_new_spinner"` |  |
-| riot.labs[1] | string | `"feature_pinning"` |  |
-| riot.labs[2] | string | `"feature_custom_status"` |  |
-| riot.labs[3] | string | `"feature_custom_tags"` |  |
-| riot.labs[4] | string | `"feature_state_counters"` |  |
-| riot.labs[5] | string | `"feature_many_integration_managers"` |  |
-| riot.labs[6] | string | `"feature_mjolnir"` |  |
-| riot.labs[7] | string | `"feature_dm_verification"` |  |
-| riot.labs[8] | string | `"feature_presence_in_room_list"` |  |
-| riot.labs[9] | string | `"feature_custom_themes"` |  |
-| riot.permalinkPrefix | string | `"https://marix.example.com"` |  |
+| riot.integrations | object | `{"api":"https://scalar.vector.im/api","enabled":true,"ui":"https://scalar.vector.im/","widgets":["https://scalar.vector.im/_matrix/integrations/v1","https://scalar.vector.im/api","https://scalar-staging.vector.im/_matrix/integrations/v1","https://scalar-staging.vector.im/api","https://scalar-staging.riot.im/scalar/api"]}` | Element integrations configuration |
+| riot.integrations.api | string | `"https://scalar.vector.im/api"` | API for the integration server |
+| riot.integrations.enabled | bool | `true` | Set to false to disable the Integrations menu (including widgets, bots, and other plugins to Element) |
+| riot.integrations.ui | string | `"https://scalar.vector.im/"` | UI to load when a user selects the Integrations button at the top-right of a room |
+| riot.integrations.widgets | list | `["https://scalar.vector.im/_matrix/integrations/v1","https://scalar.vector.im/api","https://scalar-staging.vector.im/_matrix/integrations/v1","https://scalar-staging.vector.im/api","https://scalar-staging.riot.im/scalar/api"]` | Array of API paths providing widgets |
+| riot.jitsi | object | `{"domain":""}` | Use this value to link with external Jitsi instance |
+| riot.labels | object | `{"component":"element"}` | Element specific labels |
+| riot.labs | list | `["feature_new_spinner","feature_pinning","feature_custom_status","feature_custom_tags","feature_state_counters","feature_many_integration_managers","feature_mjolnir","feature_dm_verification","feature_presence_in_room_list","feature_custom_themes"]` | Experimental features in Element |
+| riot.permalinkPrefix | string | `"https://marix.example.com"` | Prefix before permalinks generated when users share links to rooms, users, or messages. If running an unfederated Synapse, set the below to the URL of your Element instance. |
 | riot.probes.liveness | object | `{}` |  |
 | riot.probes.readiness | object | `{}` |  |
 | riot.probes.startup | object | `{}` |  |
 | riot.replicaCount | int | `1` |  |
 | riot.resources | object | `{}` |  |
-| riot.roomDirectoryServers[0] | string | `"marix.example.com"` |  |
+| riot.roomDirectoryServers | list | `["marix.example.com"]` | Servers to show in the Explore menu (the current server is always shown) |
 | riot.service.port | int | `80` |  |
 | riot.service.type | string | `"ClusterIP"` |  |
-| riot.welcomeUserId | string | `""` |  |
+| riot.welcomeUserId | string | `""` | Set to the user ID (@username:domain.tld) of a bot to invite all new users to a DM with the bot upon registration |
 | synapse.hostAliases[0].hostnames[0] | string | `"matrix.example.com"` |  |
 | synapse.hostAliases[0].ip | string | `"1.1.1.1"` |  |
 | synapse.image.pullPolicy | string | `"IfNotPresent"` |  |
 | synapse.image.repository | string | `"matrixdotorg/synapse"` |  |
 | synapse.image.tag | string | `"v1.95.0"` |  |
-| synapse.labels.component | string | `"synapse"` |  |
-| synapse.metrics.annotations | bool | `true` |  |
-| synapse.metrics.enabled | bool | `true` |  |
-| synapse.metrics.port | int | `9092` |  |
-| synapse.plugins[0] | string | `"git+https://github.com/matrix-org/synapse-s3-storage-provider.git"` |  |
+| synapse.labels | object | `{"component":"synapse"}` | Labels to be appended to all Synapse resources |
+| synapse.metrics | object | `{"annotations":true,"enabled":true,"port":9092}` | Prometheus metrics for Synapse |
+| synapse.metrics.enabled | bool | `true` | Whether Synapse should capture metrics on an additional endpoint |
+| synapse.metrics.port | int | `9092` | Port to listen on for metrics scraping |
+| synapse.plugins | list | `["git+https://github.com/matrix-org/synapse-s3-storage-provider.git"]` | These plugins will be installed via pip3 install command at the start of synapse container |
 | synapse.probes.liveness.periodSeconds | int | `10` |  |
 | synapse.probes.liveness.timeoutSeconds | int | `5` |  |
 | synapse.probes.readiness.periodSeconds | int | `10` |  |
@@ -364,23 +363,26 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | synapseAdmin.image.pullPolicy | string | `"IfNotPresent"` |  |
 | synapseAdmin.image.repository | string | `"awesometechnologies/synapse-admin"` |  |
 | synapseAdmin.image.tag | string | `"0.8.7"` |  |
-| synapseAdmin.labels.component | string | `"synapse-admin"` |  |
-| synapseAdmin.probes.liveness.periodSeconds | int | `10` |  |
-| synapseAdmin.probes.liveness.timeoutSeconds | int | `5` |  |
-| synapseAdmin.probes.readiness.periodSeconds | int | `10` |  |
-| synapseAdmin.probes.readiness.timeoutSeconds | int | `5` |  |
-| synapseAdmin.probes.startup.failureThreshold | int | `6` |  |
-| synapseAdmin.probes.startup.periodSeconds | int | `5` |  |
-| synapseAdmin.probes.startup.timeoutSeconds | int | `5` |  |
+| synapseAdmin.labels | object | `{"component":"synapse-admin"}` | Synapse admin specific labels |
+| synapseAdmin.probes | object | `{"liveness":{"periodSeconds":10,"timeoutSeconds":5},"readiness":{"periodSeconds":10,"timeoutSeconds":5},"startup":{"failureThreshold":6,"periodSeconds":5,"timeoutSeconds":5}}` | Configure timings for readiness, startup, and liveness probes here |
 | synapseAdmin.replicaCount | int | `1` |  |
 | synapseAdmin.resources | object | `{}` |  |
 | synapseAdmin.service.port | int | `80` |  |
 | synapseAdmin.service.type | string | `"ClusterIP"` |  |
-| synapseAdmin.useSecureConnection | bool | `true` |  |
-| volumes.media.capacity | string | `"10Gi"` |  |
-| volumes.media.storageClass | string | `""` |  |
-| volumes.signingKey.capacity | string | `"1Mi"` |  |
-| volumes.signingKey.storageClass | string | `""` |  |
+| synapseAdmin.useSecureConnection | bool | `true` | Set false if you want connect admin to synapse via http |
+| volumes.media | object | `{"capacity":"10Gi","storageClass":""}` | Uploaded attachments/multimedia |
+| volumes.media.capacity | string | `"10Gi"` | Capacity of the media persistent volume claim |
+| volumes.media.storageClass | string | `""` | Storage class (optional) |
+| volumes.signingKey.capacity | string | `"1Mi"` | Capacity of the signing key PVC |
+| volumes.signingKey.storageClass | string | `""` | Storage class (optional) |
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| David Cruz | <david@typokign.com> | <https://github.com/typokign/> |
+| Yevhenii Hordashnyk | <yevhenii@alpacked.io> | <https://github.com/jradikk/> |
+| Volodymyr Starodubov | <volodymyr.starodubov@alpacked.io> | <https://github.com/v-starodubov/> |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.3](https://github.com/norwoodj/helm-docs/releases/v1.11.3)
+Autogenerated from chart metadata using [helm-docs](https://github.com/norwoodj/helm-docs) and [README.md.gotmpl](README.md.gotmpl)
