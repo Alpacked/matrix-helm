@@ -27,6 +27,9 @@ Installed components:
     Prosody ({{ .Values.jitsi.prosody.image.repository }}:{{ .Values.jitsi.prosody.image.tag }})
 {{- end }}
 {{- end }}
+{{- if .Values.matrix.uvs.enabled }}
+ - User Verification Service ({{ .Values.matrix.uvs.image.repository }}:{{ .Values.matrix.uvs.image.tag }})
+{{- end }}
 {{- if .Values.mail.relay.enabled }}
  - Exim Relay ({{ .Values.mail.relay.image.repository }}:{{ .Values.mail.relay.image.tag }})
 {{- end }}
@@ -41,7 +44,6 @@ Installed components:
 {{- end }}
 
 Thank you for installing Alpacked/matrix-helm! If you have any questions or run into any issues, please file a GitHub issue.
-
 {{ if .Values.ingress.enabled }}
 Your Synapse homeserver should soon be available at https://{{ .Values.ingress.hosts.synapse }}
 {{- if .Values.riot.enabled }}
@@ -51,26 +53,32 @@ Your Element Web instance should soon be available at https://{{ .Values.ingress
 Your Jitsi Videocalls should soon be available at https://{{ .Values.ingress.hosts.jitsi }}
 {{- end }}
 {{- end }}
-
 {{ if .Values.bridges.irc.enabled }}
-The IRC bridge has been enabled!
 
+The IRC bridge has been enabled!
 You can now join IRC channels on any servers you have configured by joining #<alias_prefix><channel_name>:{{ .Values.matrix.serverName }}.
 For more information, check out the official documentation at https://github.com/matrix-org/matrix-appservice-irc
+
 {{- end }}
-
 {{ if .Values.bridges.whatsapp.enabled }}
-The WhatsApp bridge has been enabled!
 
+The WhatsApp bridge has been enabled!
 To get started, start a chat with the bridge bot (@{{ .Values.bridges.whatsapp.bot.username }}:{{ .Values.matrix.serverName }}).
 For more information, check out the official documentation at https://github.com/tulir/mautrix-whatsapp/wiki/Authentication
-{{- end }}
 
+{{- end }}
 {{ if .Values.bridges.discord.enabled }}
+
 The Discord bridge has been enabled!
-
 You'll need to follow the instructions at https://github.com/Half-Shot/matrix-appservice-discord#setting-up-discord to finish setting up the bridge
-
 When you've finished setting up the bridge, head to https://discord.com/oauth2/authorize?client_id={{ .Values.bridges.discord.auth.clientId }}&scope=bot&permissions=607251456 to invite the bridge bot to a Discord guild.
+
 {{- end }}
+{{- end }}
+{{- if and (.Values.matrix.uvs.enabled) (eq .Values.matrix.uvs.accessToken "") }}
+WARNING: Matrix User Verification Service is not provided with **Access Token** and won't be able to communicate with Synapse via API.
+{{- if and (.Values.jitsi.enabled) (eq .Values.jitsi.extraCommonEnvs.AUTH_TYPE "matrix") }}
+WARNING: Jitsi won't be able to authorize via Matrix because Matrix User Verification Service not fully configured.
+{{- end }}
+Please, generate token from admin user (e.g. syt_Ym9yaXNicml0dmE_wRkmeJaZJzRCAzCksGTQ_0JPhPS), provide value to chart and update release.
 {{- end }}

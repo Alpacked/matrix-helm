@@ -1,4 +1,4 @@
-{{- if .Values.matrix.uvs.enabled -}}
+{{- if .Values.matrix.uvs.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
