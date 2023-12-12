@@ -9,7 +9,7 @@ metadata:
 spec:
   type: {{ .Values.matrix.uvs.service.type }}
   ports:
-    - port: {{ .Values.matrix.uvs.service.port }}
+    - port: {{ default 3000 .Values.matrix.uvs.service.port }}
       targetPort: http
       protocol: TCP
       name: http
