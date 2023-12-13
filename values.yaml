@@ -1,5 +1,5 @@
 # Runtime configuration for Synapse and settings related to the Matrix protocol
-
+# @section -- Globals
 nameOverride: ""
 fullnameOverride: ""
 
@@ -58,6 +58,7 @@ matrix:
     maxPixels: 32M
 
   # Settings related to federation
+  # @section -- Synapse Federation
   federation:
     # -- Set to true to enable federation and run an isolated homeserver
     enabled: false
@@ -81,6 +82,7 @@ matrix:
       - 'fc00::/7'
 
   # User registration settings
+  # @section -- Synapse Registration
   registration:
     # -- Allow new users to register an account
     enabled: false
@@ -100,6 +102,7 @@ matrix:
       - '"#lobby:matrix.example.com"'
 
   # Settings for the URL preview crawler
+  # @section -- Synapse URL Preview
   urlPreviews:
     # -- Enable URL previews.
     enabled: true
@@ -149,6 +152,7 @@ matrix:
   # -- How long to keep redacted events in unredacted form in the database
   retentionPeriod: 7d
 
+  # @section -- Synapse Security
   security:
     # -- A secret which is used to sign access tokens.
     macaroonSecretKey: ""
@@ -211,6 +215,7 @@ matrix:
   disabledMessage: ""
 
   # Matrix user verification service (Required for Jitsi deployment)
+  # @section -- Matrix User Verification service
   uvs:
     enabled: false
     image:
@@ -243,6 +248,7 @@ matrix:
     labels:
       component: uvs
 
+  # @section -- Synapse logging
   logging:
     # -- Root log level is the default log level for log outputs that do not have more
     # specific settings.
@@ -254,6 +260,7 @@ matrix:
     synapseLogLevel: INFO
 
 # Persistent volumes configuration
+# @section -- Synapse volumes
 volumes:
   # -- Uploaded attachments/multimedia
   media:
@@ -272,6 +279,7 @@ volumes:
 externalSecret:
   enabled: false
 
+# @section -- Ingress
 ingress:
   enabled: false
   # Whether to expose the federation API behind the Ingress
@@ -291,6 +299,7 @@ ingress:
       proxy_intercept_errors off;
 
 # PostgreSQL Database Configuration
+# @section -- PostgreSQL
 postgresql:
   # Whether to deploy the bitnami/postgresql chart with this chart. If disabled, make sure PostgreSQL is available at the hostname below and credentials are configured below.
   enabled: true
@@ -349,6 +358,7 @@ postgresql:
     enabled: true
 
 # Configuration for Redis when using workers.
+# @section -- Redis
 redis:
   # -- This must be enabled when using workers.
   enabled: false
@@ -398,6 +408,7 @@ redis:
     enabled: true
 
 # Synapse Kubernetes resource settings
+# @section -- Synapse
 synapse:
   image:
     repository: "matrixdotorg/synapse"
@@ -451,6 +462,7 @@ synapse:
       - "matrix.example.com"
 
 # Synapse Kubernetes resource settings
+# @section -- Synapse Admin
 synapseAdmin:
   enabled: false
   # -- Set false if you want connect admin to synapse via http
@@ -482,6 +494,7 @@ synapseAdmin:
     component: synapse-admin
 
 # Element (formerly Riot Web) client configuration
+# @section -- Element (Riot)
 riot:
   # -- Set to false to disable a deployment of Element.
   enabled: true
@@ -566,6 +579,7 @@ riot:
     component: element
 
 # Settings for Coturn TURN relay, used for routing voice calls
+# @section -- Coturn
 coturn:
   # -- Set to true to enable the included deployment of Coturn
   enabled: false
@@ -619,6 +633,7 @@ coturn:
     component: coturn
 
 # https://github.com/jitsi-contrib/jitsi-helm/blob/main/values.yaml
+# @section -- Jitsi
 jitsi:
   # Set to false to disable the included deployment of Jitsi video conferencing
   enabled: false
@@ -713,6 +728,7 @@ jitsi:
 
 
 # Settings for email notifications
+# @section -- Mail
 mail:
   # -- Set to false to disable all email notifications
   enabled: false
@@ -755,7 +771,9 @@ mail:
     password: ""
     requireTransportSecurity: true
 
+# @section -- Bridges
 bridges:
+  # @section -- IRC Bridge
   irc:
     # -- Set to true to enable the IRC bridge
     enabled: false
@@ -793,6 +811,7 @@ bridges:
       type: ClusterIP
       port: 9006
 
+  # @section -- WhatsApp bridge
   whatsapp:
     # -- Set to true to enable the WhatsApp bridge
     enabled: false
@@ -880,6 +899,7 @@ bridges:
       type: ClusterIP
       port: 29318
 
+  # @section -- Discord Bridge
   discord:
     # -- Set to true to enable the Discord bridge
     enabled: false
