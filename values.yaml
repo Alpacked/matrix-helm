@@ -294,7 +294,7 @@ matrix:
       component: uvs
 
   # -- Matrix Synapse logging configuration
-  # @section -- Synapse logging
+  # @section -- Synapse Logging
   logging:
     # Root log level is the default log level for log outputs that do not have more specific settings.
     rootLogLevel: DEBUG
@@ -306,13 +306,13 @@ matrix:
 # Persistent volumes configuration
 volumes:
   # -- Uploaded attachments/multimedia
-  # @section -- Synapse volumes
+  # @section -- Synapse Volumes
   media:
     capacity: 10Gi
     # Storage class (optional)
     storageClass: ""
   # -- Signing key storage
-  # @section -- Synapse volumes
+  # @section -- Synapse Volumes
   signingKey:
     # 1Mi is more than enough, but some cloud providers set a minimum PVC size of 1Mi or 1Gi, adjust as necessary
     capacity: 1Mi
