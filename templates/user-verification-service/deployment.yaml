@@ -25,11 +25,13 @@ spec:
           image: "{{ .Values.matrix.uvs.image.repository }}:{{ .Values.matrix.uvs.image.tag }}"
           imagePullPolicy: {{ default "IfNotPresent" .Values.matrix.uvs.image.pullPolicy }}
           env:
+          {{- if .Values.matrix.uvs.accessToken.secretName and .Values.matrix.uvs.accessToken.secretKey }}
             - name: UVS_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "matrix.fullname" . }}-prosody-uvs
-                  key: MATRIX_UVS_ACCESS_TOKEN
+                  name: {{ tpl .Values.matrix.uvs.accessToken.secretName . }}
+                  key: {{ tpl .Values.matrix.uvs.accessToken.secretKey . }}
+          {{- end }}
             - name: UVS_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:

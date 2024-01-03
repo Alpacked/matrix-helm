@@ -75,7 +75,7 @@ When you've finished setting up the bridge, head to https://discord.com/oauth2/a
 
 {{- end }}
 {{- end }}
-{{- if and (.Values.matrix.uvs.enabled) (eq .Values.matrix.uvs.accessToken "") }}
+{{- if and (.Values.matrix.uvs.enabled) (or (eq .Values.matrix.uvs.accessToken.secretKey "") (eq .Values.matrix.uvs.accessToken.secretName "")) }}
 WARNING: Matrix User Verification Service is not provided with **Access Token** and won't be able to communicate with Synapse via API.
 {{- if and (.Values.jitsi.enabled) (eq .Values.jitsi.extraCommonEnvs.AUTH_TYPE "matrix") }}
 WARNING: Jitsi won't be able to authorize via Matrix because Matrix User Verification Service not fully configured.
