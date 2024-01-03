@@ -129,13 +129,13 @@ RUN mkdir /usr/lib/$(uname -m)-linux-gnu/ \
 COPY --from=builder /install /usr/local
 COPY --from=source-code /synapse/docker/start.py /start.py
 COPY --from=source-code /synapse/docker/conf /conf
+COPY /plugins.txt /plugins.txt
 
-COPY /start_with_plugin_install.sh /start_with_plugin_install.sh
-RUN chmod +x /start_with_plugin_install.sh
+RUN pip3 install --no-cache-dir -r /plugins.txt
 
 EXPOSE 8008/tcp 8009/tcp 8448/tcp
 
-ENTRYPOINT ["/start_with_plugin_install.sh"]
+ENTRYPOINT ["/start.py"]
 
 HEALTHCHECK --start-period=5s --interval=15s --timeout=5s \
 CMD curl -fSs http://localhost:8008/health || exit 1

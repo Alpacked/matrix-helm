@@ -1,0 +1,1 @@
+synapse-s3-storage-provider==1.3.0

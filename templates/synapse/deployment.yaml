@@ -62,9 +62,6 @@ spec:
         - name: "synapse"
           image: "{{ .Values.synapse.image.repository }}:{{ .Values.synapse.image.tag }}"
           imagePullPolicy: {{ .Values.synapse.image.pullPolicy }}
-          env:
-            - name: SYNAPSE_PLUGINS
-              value: {{ join ";" .Values.synapse.plugins }}
           ports:
             - name: http
               containerPort: 8008
