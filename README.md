@@ -9,14 +9,6 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 * <https://github.com/dacruz21/matrix-chart>
 * <https://github.com/Alpacked/matrix-helm>
 
-## Table of Contents
-- [Features](#features)
-- [Configuration](#configuration)
-- [Caveats](#caveats)
-- [Requirements](#requirements)
-- [Values](#values)
-- [Maintainers](#maintainers)
-
 ## Features
 
 - Latest version of Synapse with plugin installation support.
@@ -69,6 +61,7 @@ External Secret manifest can be used for more secure value storage, but it doesn
 
 ## Values
 
+<h3>Bridges</h3>
 <table>
 	<thead>
 		<th>Key</th>
@@ -86,6 +79,44 @@ false
 </td>
 			<td>Recommended to leave this disabled to allow bridges to be scheduled on separate nodes.</td>
 		</tr>
+		<tr>
+			<td>bridges.volume.accessMode</td>
+			<td>string</td>
+			<td><pre lang="json">
+"ReadWriteMany"
+</pre>
+</td>
+			<td>Access mode of the shared volume.</td>
+		</tr>
+		<tr>
+			<td>bridges.volume.capacity</td>
+			<td>string</td>
+			<td><pre lang="json">
+"1Mi"
+</pre>
+</td>
+			<td>Capacity of the shared volume for storing bridge/appservice registration files</td>
+		</tr>
+		<tr>
+			<td>bridges.volume.storageClass</td>
+			<td>string</td>
+			<td><pre lang="json">
+""
+</pre>
+</td>
+			<td>Storage class (optional)</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Discord bridge</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>bridges.discord.auth</td>
 			<td>object</td>
@@ -108,22 +139,16 @@ false
 			<td>The name of bridged rooms</td>
 		</tr>
 		<tr>
-			<td>bridges.discord.data.capacity</td>
-			<td>string</td>
+			<td>bridges.discord.data</td>
+			<td>object</td>
 			<td><pre lang="json">
-"512Mi"
+{
+  "capacity": "512Mi",
+  "storageClass": ""
+}
 </pre>
 </td>
-			<td>Size of the PVC to allocate for the SQLite database</td>
-		</tr>
-		<tr>
-			<td>bridges.discord.data.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
+			<td>PVC to allocate for the SQLite database</td>
 		</tr>
 		<tr>
 			<td>bridges.discord.defaultVisibility</td>
@@ -144,31 +169,17 @@ false
 			<td>Set to true to enable the Discord bridge</td>
 		</tr>
 		<tr>
-			<td>bridges.discord.image.pullPolicy</td>
-			<td>string</td>
+			<td>bridges.discord.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"Always"
+{
+  "pullPolicy": "Always",
+  "repository": "halfshot/matrix-appservice-discord",
+  "tag": "v1.0.0"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.discord.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"halfshot/matrix-appservice-discord"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.discord.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"v1.0.0"
-</pre>
-</td>
-			<td></td>
+			<td>Image of bridge container</td>
 		</tr>
 		<tr>
 			<td>bridges.discord.joinLeaveEvents</td>
@@ -204,7 +215,7 @@ true
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica count</td>
 		</tr>
 		<tr>
 			<td>bridges.discord.resources</td>
@@ -213,7 +224,7 @@ true
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Pod resources</td>
 		</tr>
 		<tr>
 			<td>bridges.discord.selfService</td>
@@ -225,22 +236,16 @@ false
 			<td>Set to true to allow users to bridge rooms themselves using !discord commands</td>
 		</tr>
 		<tr>
-			<td>bridges.discord.service.port</td>
-			<td>int</td>
+			<td>bridges.discord.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-9005
+{
+  "port": 9005,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.discord.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
 		<tr>
 			<td>bridges.discord.typingNotifications</td>
@@ -269,14 +274,28 @@ true
 </td>
 			<td>Username of bridged Discord users</td>
 		</tr>
+	</tbody>
+</table>
+<h3>IRC bridge</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>bridges.irc.data.capacity</td>
-			<td>string</td>
+			<td>bridges.irc.data</td>
+			<td>object</td>
 			<td><pre lang="json">
-"1Mi"
+{
+  "capacity": "1Mi",
+  "storageClass": ""
+}
 </pre>
 </td>
-			<td>Size of the data PVC to allocate</td>
+			<td>PVC to allocate for the IRC bridge container</td>
 		</tr>
 		<tr>
 			<td>bridges.irc.database</td>
@@ -294,7 +313,7 @@ true
 true
 </pre>
 </td>
-			<td></td>
+			<td>Verify SSL database connection</td>
 		</tr>
 		<tr>
 			<td>bridges.irc.enabled</td>
@@ -306,31 +325,17 @@ false
 			<td>Set to true to enable the IRC bridge</td>
 		</tr>
 		<tr>
-			<td>bridges.irc.image.pullPolicy</td>
-			<td>string</td>
+			<td>bridges.irc.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"IfNotPresent"
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "matrixdotorg/matrix-appservice-irc",
+  "tag": "release-1.0.1"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.irc.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrixdotorg/matrix-appservice-irc"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.irc.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"release-1.0.1"
-</pre>
-</td>
-			<td></td>
+			<td>Image of bridge container</td>
 		</tr>
 		<tr>
 			<td>bridges.irc.presence</td>
@@ -339,7 +344,7 @@ false
 false
 </pre>
 </td>
-			<td>Whether to enable presence (online/offline indicators). </td>
+			<td>Whether to enable presence (online/offline indicators).</td>
 		</tr>
 		<tr>
 			<td>bridges.irc.replicaCount</td>
@@ -348,7 +353,7 @@ false
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica count</td>
 		</tr>
 		<tr>
 			<td>bridges.irc.resources</td>
@@ -357,80 +362,46 @@ false
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Pod resources</td>
 		</tr>
 		<tr>
-			<td>bridges.irc.servers."chat.freenode.net".name</td>
-			<td>string</td>
+			<td>bridges.irc.servers</td>
+			<td>object</td>
 			<td><pre lang="json">
-"Freenode"
+{
+  "chat.freenode.net": {
+    "name": "Freenode",
+    "port": 6697,
+    "ssl": true
+  }
+}
 </pre>
 </td>
-			<td>A human-readable short name.</td>
+			<td>Object of IRC servers to connect to, see https://github.com/matrix-org/matrix-appservice-irc/blob/master/config.sample.yaml for config options</td>
 		</tr>
 		<tr>
-			<td>bridges.irc.servers."chat.freenode.net".port</td>
-			<td>int</td>
+			<td>bridges.irc.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-6697
+{
+  "port": 9006,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td>The port to connect to. Optional.</td>
+			<td>Service configuration</td>
 		</tr>
-		<tr>
-			<td>bridges.irc.servers."chat.freenode.net".ssl</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>Whether to use SSL or not. Default: false.</td>
-		</tr>
-		<tr>
-			<td>bridges.irc.service.port</td>
-			<td>int</td>
-			<td><pre lang="json">
-9006
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.irc.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.volume.accessMode</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ReadWriteMany"
-</pre>
-</td>
-			<td>Access mode of the shared volume.</td>
-		</tr>
-		<tr>
-			<td>bridges.volume.capacity</td>
-			<td>string</td>
-			<td><pre lang="json">
-"1Mi"
-</pre>
-</td>
-			<td>Capacity of the shared volume for storing bridge/appservice registration files</td>
-		</tr>
-		<tr>
-			<td>bridges.volume.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
-		</tr>
+	</tbody>
+</table>
+<h3>WhatsApp bridge</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>bridges.whatsapp.bot</td>
 			<td>object</td>
@@ -461,21 +432,6 @@ true
 </pre>
 </td>
 			<td>Display name for communities.</td>
-		</tr>
-		<tr>
-			<td>bridges.whatsapp.connection</td>
-			<td>object</td>
-			<td><pre lang="json">
-{
-  "maxAttempts": 3,
-  "qrRegenCount": 2,
-  "reportRetry": true,
-  "retryDelay": -1,
-  "timeout": 20
-}
-</pre>
-</td>
-			<td>WhatsApp server connection settings</td>
 		</tr>
 		<tr>
 			<td>bridges.whatsapp.connection.maxAttempts</td>
@@ -523,22 +479,16 @@ true
 			<td>WhatsApp server connection timeout (seconds)</td>
 		</tr>
 		<tr>
-			<td>bridges.whatsapp.data.capacity</td>
-			<td>string</td>
+			<td>bridges.whatsapp.data</td>
+			<td>object</td>
 			<td><pre lang="json">
-"512Mi"
+{
+  "capacity": "512Mi",
+  "storageClass": ""
+}
 </pre>
 </td>
-			<td>Size of the PVC to allocate for the SQLite database</td>
-		</tr>
-		<tr>
-			<td>bridges.whatsapp.data.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
+			<td>PVC to allocate for the SQLite database</td>
 		</tr>
 		<tr>
 			<td>bridges.whatsapp.enabled</td>
@@ -550,31 +500,17 @@ false
 			<td>Set to true to enable the WhatsApp bridge</td>
 		</tr>
 		<tr>
-			<td>bridges.whatsapp.image.pullPolicy</td>
-			<td>string</td>
+			<td>bridges.whatsapp.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"Always"
+{
+  "pullPolicy": "Always",
+  "repository": "dock.mau.dev/tulir/mautrix-whatsapp",
+  "tag": "v0.10.3"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.whatsapp.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"dock.mau.dev/tulir/mautrix-whatsapp"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.whatsapp.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"v0.10.3"
-</pre>
-</td>
-			<td></td>
+			<td>Image of bridge container</td>
 		</tr>
 		<tr>
 			<td>bridges.whatsapp.permissions</td>
@@ -621,7 +557,7 @@ false
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica count</td>
 		</tr>
 		<tr>
 			<td>bridges.whatsapp.resources</td>
@@ -630,25 +566,19 @@ false
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Pod resources</td>
 		</tr>
 		<tr>
-			<td>bridges.whatsapp.service.port</td>
-			<td>int</td>
+			<td>bridges.whatsapp.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-29318
+{
+  "port": 29318,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>bridges.whatsapp.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
 		<tr>
 			<td>bridges.whatsapp.users.displayName</td>
@@ -668,6 +598,17 @@ false
 </td>
 			<td>Username for WhatsApp users</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Coturn</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>coturn.allowGuests</td>
 			<td>bool</td>
@@ -687,31 +628,17 @@ false
 			<td>Set to true to enable the included deployment of Coturn</td>
 		</tr>
 		<tr>
-			<td>coturn.image.pullPolicy</td>
-			<td>string</td>
+			<td>coturn.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"IfNotPresent"
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "coturn/coturn",
+  "tag": "4.6.2"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>coturn.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"coturn/coturn"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>coturn.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"4.6.2"
-</pre>
-</td>
-			<td></td>
+			<td>Image configuration of pod</td>
 		</tr>
 		<tr>
 			<td>coturn.kind</td>
@@ -752,7 +679,7 @@ false
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica configuration</td>
 		</tr>
 		<tr>
 			<td>coturn.resources</td>
@@ -761,7 +688,7 @@ false
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Resource configuration</td>
 		</tr>
 		<tr>
 			<td>coturn.service.type</td>
@@ -792,15 +719,17 @@ false
 </td>
 			<td>URIs of the Coturn servers</td>
 		</tr>
-		<tr>
-			<td>externalSecret.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td></td>
-		</tr>
+	</tbody>
+</table>
+<h3>Globals</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>fullnameOverride</td>
 			<td>string</td>
@@ -808,7 +737,7 @@ false
 ""
 </pre>
 </td>
-			<td></td>
+			<td>Helm chart fullname override</td>
 		</tr>
 		<tr>
 			<td>imagePullSecrets</td>
@@ -817,16 +746,157 @@ false
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Image pull secrets</td>
 		</tr>
 		<tr>
-			<td>ingress.annotations."nginx.ingress.kubernetes.io/configuration-snippet"</td>
+			<td>matrix.adminEmail</td>
 			<td>string</td>
 			<td><pre lang="json">
-"proxy_intercept_errors off;\n"
+"admin@example.com"
 </pre>
 </td>
-			<td></td>
+			<td>Email address of the administrator</td>
+		</tr>
+		<tr>
+			<td>matrix.blockNonAdminInvites</td>
+			<td>bool</td>
+			<td><pre lang="json">
+false
+</pre>
+</td>
+			<td>Set to true to block non-admins from inviting users to any rooms</td>
+		</tr>
+		<tr>
+			<td>matrix.encryptByDefault</td>
+			<td>string</td>
+			<td><pre lang="json">
+"all"
+</pre>
+</td>
+			<td>Which types of rooms to enable end-to-end encryption on by default</td>
+		</tr>
+		<tr>
+			<td>matrix.homeserverExtra</td>
+			<td>object</td>
+			<td><pre lang="json">
+{}
+</pre>
+</td>
+			<td>Contents will be appended to the end of the default configuration.</td>
+		</tr>
+		<tr>
+			<td>matrix.homeserverOverride</td>
+			<td>object</td>
+			<td><pre lang="json">
+{}
+</pre>
+</td>
+			<td>Entirety of homeserver.yaml will be replaced with the contents, if set.</td>
+		</tr>
+		<tr>
+			<td>matrix.hostname</td>
+			<td>string</td>
+			<td><pre lang="json">
+"matrix.example.com"
+</pre>
+</td>
+			<td>Hostname where Synapse can be reached.</td>
+		</tr>
+		<tr>
+			<td>matrix.presence</td>
+			<td>bool</td>
+			<td><pre lang="json">
+true
+</pre>
+</td>
+			<td>Set to false to disable presence (online/offline indicators)</td>
+		</tr>
+		<tr>
+			<td>matrix.search</td>
+			<td>bool</td>
+			<td><pre lang="json">
+true
+</pre>
+</td>
+			<td>Set to false to disable message searching</td>
+		</tr>
+		<tr>
+			<td>matrix.serverName</td>
+			<td>string</td>
+			<td><pre lang="json">
+"matrix.example.com"
+</pre>
+</td>
+			<td>Domain name of the server</td>
+		</tr>
+		<tr>
+			<td>matrix.telemetry</td>
+			<td>bool</td>
+			<td><pre lang="json">
+false
+</pre>
+</td>
+			<td>Enable anonymous telemetry to matrix.org</td>
+		</tr>
+		<tr>
+			<td>matrix.uploads.maxPixels</td>
+			<td>string</td>
+			<td><pre lang="json">
+"32M"
+</pre>
+</td>
+			<td>Max image size in pixels</td>
+		</tr>
+		<tr>
+			<td>matrix.uploads.maxSize</td>
+			<td>string</td>
+			<td><pre lang="json">
+"400M"
+</pre>
+</td>
+			<td>Max upload size in bytes</td>
+		</tr>
+		<tr>
+			<td>nameOverride</td>
+			<td>string</td>
+			<td><pre lang="json">
+""
+</pre>
+</td>
+			<td>Helm chart name override</td>
+		</tr>
+		<tr>
+			<td>networkPolicies</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "enabled": false
+}
+</pre>
+</td>
+			<td>Network policies configuration</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Ingress</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
+		<tr>
+			<td>ingress.annotations</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "nginx.ingress.kubernetes.io/configuration-snippet": "proxy_intercept_errors off;\n"
+}
+</pre>
+</td>
+			<td>Ingress related annotations</td>
 		</tr>
 		<tr>
 			<td>ingress.className</td>
@@ -835,7 +905,7 @@ false
 ""
 </pre>
 </td>
-			<td></td>
+			<td>Ingress class name</td>
 		</tr>
 		<tr>
 			<td>ingress.enabled</td>
@@ -844,7 +914,7 @@ false
 false
 </pre>
 </td>
-			<td></td>
+			<td>Enables ingress configuration to expose release</td>
 		</tr>
 		<tr>
 			<td>ingress.federation</td>
@@ -853,52 +923,22 @@ false
 true
 </pre>
 </td>
-			<td></td>
+			<td>Whether to expose the federation API behind the Ingress</td>
 		</tr>
 		<tr>
-			<td>ingress.hosts.admin</td>
-			<td>string</td>
+			<td>ingress.hosts</td>
+			<td>object</td>
 			<td><pre lang="json">
-"admin.matrix.example.com"
+{
+  "admin": "admin.matrix.example.com",
+  "federation": "federation.matrix.example.com",
+  "jitsi": "meet.example.com",
+  "riot": "element.matrix.example.com",
+  "synapse": "matrix.example.com"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>ingress.hosts.federation</td>
-			<td>string</td>
-			<td><pre lang="json">
-"federation.matrix.example.com"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>ingress.hosts.jitsi</td>
-			<td>string</td>
-			<td><pre lang="json">
-"meet.example.com"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>ingress.hosts.riot</td>
-			<td>string</td>
-			<td><pre lang="json">
-"element.matrix.example.com"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>ingress.hosts.synapse</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix.example.com"
-</pre>
-</td>
-			<td></td>
+			<td>DNS names of exposed services</td>
 		</tr>
 		<tr>
 			<td>ingress.tls</td>
@@ -907,8 +947,19 @@ true
 []
 </pre>
 </td>
-			<td></td>
+			<td>For HTTPS access of resources (recommended)</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Jitsi</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>jitsi.enableAuth</td>
 			<td>bool</td>
@@ -916,7 +967,7 @@ true
 true
 </pre>
 </td>
-			<td></td>
+			<td>Enable auth configuration (Required for matrix auth)</td>
 		</tr>
 		<tr>
 			<td>jitsi.enableGuests</td>
@@ -925,7 +976,7 @@ true
 false
 </pre>
 </td>
-			<td></td>
+			<td>Enable guest access to video conferences</td>
 		</tr>
 		<tr>
 			<td>jitsi.enabled</td>
@@ -934,290 +985,134 @@ false
 false
 </pre>
 </td>
-			<td></td>
+			<td>Set to false to disable the included deployment of Jitsi video conferencing</td>
 		</tr>
 		<tr>
-			<td>jitsi.extraCommonEnvs.AUTH_TYPE</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.global</td>
+			<td>jitsi.extraCommonEnvs</td>
 			<td>object</td>
 			<td><pre lang="json">
 {
-  "podLabels": {
-    "component": "jitsi"
-  }
+  "AUTH_TYPE": "matrix"
+}
+</pre>
+</td>
+			<td>Additional environment variables for jitsi pods</td>
+		</tr>
+		<tr>
+			<td>jitsi.global.podLabels</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "component": "jitsi"
 }
 </pre>
 </td>
 			<td>Jitsi specific labels</td>
 		</tr>
 		<tr>
-			<td>jitsi.jibri.enabled</td>
-			<td>bool</td>
+			<td>jitsi.jibri</td>
+			<td>object</td>
 			<td><pre lang="json">
-false
+{
+  "enabled": false,
+  "image": {
+    "repository": "jjitsi/jibri",
+    "tag": "stable"
+  },
+  "persistence": {
+    "enabled": false,
+    "size": "4Gi",
+    "storageClassName": ""
+  },
+  "replicaCount": 1,
+  "shm": {
+    "enabled": true
+  }
+}
 </pre>
 </td>
-			<td></td>
+			<td>Jibri pod configuration</td>
 		</tr>
 		<tr>
-			<td>jitsi.jibri.image.repository</td>
-			<td>string</td>
+			<td>jitsi.jicofo</td>
+			<td>object</td>
 			<td><pre lang="json">
-"jjitsi/jibri"
+{
+  "image": {
+    "repository": "jitsi/jicofo",
+    "tag": "stable"
+  },
+  "replicaCount": 1
+}
 </pre>
 </td>
-			<td></td>
+			<td>Conference focus pod configuration</td>
 		</tr>
 		<tr>
-			<td>jitsi.jibri.image.tag</td>
-			<td>string</td>
+			<td>jitsi.jvb</td>
+			<td>object</td>
 			<td><pre lang="json">
-"stable"
+{
+  "UDPPort": 10000,
+  "image": {
+    "repository": "jitsi/jvb",
+    "tag": "stable"
+  },
+  "replicaCount": 1,
+  "service": {
+    "enabled": true,
+    "externalTrafficPolicy": "",
+    "type": "ClusterIP"
+  }
+}
 </pre>
 </td>
-			<td></td>
+			<td>Videobridge pod configuration</td>
 		</tr>
 		<tr>
-			<td>jitsi.jibri.persistence.enabled</td>
-			<td>bool</td>
+			<td>jitsi.prosody</td>
+			<td>object</td>
 			<td><pre lang="json">
-false
+{
+  "enabled": true,
+  "extraEnvFrom": [
+    {
+      "secretRef": {
+        "name": "{{ include \"matrix.fullname\" . }}-uvs"
+      }
+    },
+    {
+      "secretRef": {
+        "name": "{{ include \"matrix.fullname\" . }}-jicofo"
+      }
+    },
+    {
+      "secretRef": {
+        "name": "{{ include \"matrix.fullname\" . }}-jvb"
+      }
+    },
+    {
+      "configMapRef": {
+        "name": "{{ include \"matrix.fullname\" . }}-common"
+      }
+    }
+  ],
+  "image": {
+    "repository": "jitsi/prosody",
+    "tag": "stable"
+  },
+  "persistence": {
+    "enabled": false,
+    "size": "3Gi",
+    "storageClassName": ""
+  },
+  "podSecurityContext": {
+    "fsGroup": 102
+  }
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jibri.persistence.size</td>
-			<td>string</td>
-			<td><pre lang="json">
-"4Gi"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jibri.persistence.storageClassName</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jibri.replicaCount</td>
-			<td>int</td>
-			<td><pre lang="json">
-1
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jibri.shm.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jicofo.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"jitsi/jicofo"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jicofo.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"stable"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jicofo.replicaCount</td>
-			<td>int</td>
-			<td><pre lang="json">
-1
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.UDPPort</td>
-			<td>int</td>
-			<td><pre lang="json">
-10000
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"jitsi/jvb"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"stable"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.replicaCount</td>
-			<td>int</td>
-			<td><pre lang="json">
-1
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.service.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.service.externalTrafficPolicy</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.jvb.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.extraEnvFrom[0].secretRef.name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"{{ include \"matrix.fullname\" . }}-uvs"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.extraEnvFrom[1].secretRef.name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"{{ include \"matrix.fullname\" . }}-jicofo"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.extraEnvFrom[2].secretRef.name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"{{ include \"matrix.fullname\" . }}-jvb"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.extraEnvFrom[3].configMapRef.name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"{{ include \"matrix.fullname\" . }}-common"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"jitsi/prosody"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"stable"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.persistence.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.persistence.size</td>
-			<td>string</td>
-			<td><pre lang="json">
-"3Gi"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.persistence.storageClassName</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.prosody.podSecurityContext.fsGroup</td>
-			<td>int</td>
-			<td><pre lang="json">
-102
-</pre>
-</td>
-			<td></td>
+			<td>Prosody pod configuration</td>
 		</tr>
 		<tr>
 			<td>jitsi.publicURL</td>
@@ -1226,107 +1121,54 @@ false
 "meet.example.com"
 </pre>
 </td>
-			<td></td>
+			<td>DNS name</td>
 		</tr>
 		<tr>
-			<td>jitsi.web.extraVolumeMounts[0].mountPath</td>
-			<td>string</td>
+			<td>jitsi.web</td>
+			<td>object</td>
 			<td><pre lang="json">
-"/usr/share/jitsi-meet/.well-known/element/jitsi"
+{
+  "extraVolumeMounts": [
+    {
+      "mountPath": "/usr/share/jitsi-meet/.well-known/element/jitsi",
+      "name": "well-known-element-jitsi",
+      "readOnly": true,
+      "subPath": "jitsi.json"
+    }
+  ],
+  "extraVolumes": [
+    {
+      "configMap": {
+        "name": "matrix-jitsi-web-config"
+      },
+      "name": "well-known-element-jitsi"
+    }
+  ],
+  "image": {
+    "repository": "jitsi/web",
+    "tag": "stable"
+  },
+  "replicaCount": 1,
+  "service": {
+    "port": 80,
+    "type": "ClusterIP"
+  }
+}
 </pre>
 </td>
-			<td></td>
+			<td>Website pod configuration</td>
 		</tr>
-		<tr>
-			<td>jitsi.web.extraVolumeMounts[0].name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"well-known-element-jitsi"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.extraVolumeMounts[0].readOnly</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.extraVolumeMounts[0].subPath</td>
-			<td>string</td>
-			<td><pre lang="json">
-"jitsi.json"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.extraVolumes[0].configMap.name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix-jitsi-web-config"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.extraVolumes[0].name</td>
-			<td>string</td>
-			<td><pre lang="json">
-"well-known-element-jitsi"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"jitsi/web"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"stable"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.replicaCount</td>
-			<td>int</td>
-			<td><pre lang="json">
-1
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.service.port</td>
-			<td>int</td>
-			<td><pre lang="json">
-80
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>jitsi.web.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
-		</tr>
+	</tbody>
+</table>
+<h3>Mail</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>mail.enabled</td>
 			<td>bool</td>
@@ -1361,36 +1203,6 @@ false
 			<td>Name and email address for outgoing mail</td>
 		</tr>
 		<tr>
-			<td>mail.relay</td>
-			<td>object</td>
-			<td><pre lang="json">
-{
-  "enabled": false,
-  "image": {
-    "pullPolicy": "IfNotPresent",
-    "repository": "devture/exim-relay",
-    "tag": "4.96.2-r0-0"
-  },
-  "labels": {
-    "component": "mail"
-  },
-  "probes": {
-    "liveness": {},
-    "readiness": {},
-    "startup": {}
-  },
-  "replicaCount": 1,
-  "resources": {},
-  "service": {
-    "port": 25,
-    "type": "ClusterIP"
-  }
-}
-</pre>
-</td>
-			<td>Exim relay</td>
-		</tr>
-		<tr>
 			<td>mail.riotUrl</td>
 			<td>string</td>
 			<td><pre lang="json">
@@ -1399,24 +1211,104 @@ false
 </td>
 			<td>Optional: Element instance URL.</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Exim Relay</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>matrix.adminEmail</td>
-			<td>string</td>
-			<td><pre lang="json">
-"admin@example.com"
-</pre>
-</td>
-			<td>Email address of the administrator</td>
-		</tr>
-		<tr>
-			<td>matrix.blockNonAdminInvites</td>
+			<td>mail.relay.enabled</td>
 			<td>bool</td>
 			<td><pre lang="json">
 false
 </pre>
 </td>
-			<td>Set to true to block non-admins from inviting users to any rooms</td>
+			<td>Change if you want to use Exim Relay</td>
 		</tr>
+		<tr>
+			<td>mail.relay.image</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "devture/exim-relay",
+  "tag": "4.96.2-r0-0"
+}
+</pre>
+</td>
+			<td>Image configuration for container</td>
+		</tr>
+		<tr>
+			<td>mail.relay.labels</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "component": "mail"
+}
+</pre>
+</td>
+			<td>Exim Relay specific labels</td>
+		</tr>
+		<tr>
+			<td>mail.relay.probes</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "liveness": {},
+  "readiness": {},
+  "startup": {}
+}
+</pre>
+</td>
+			<td>Configure timings for readiness, startup, and liveness probes here</td>
+		</tr>
+		<tr>
+			<td>mail.relay.replicaCount</td>
+			<td>int</td>
+			<td><pre lang="json">
+1
+</pre>
+</td>
+			<td>Replica configuration</td>
+		</tr>
+		<tr>
+			<td>mail.relay.resources</td>
+			<td>object</td>
+			<td><pre lang="json">
+{}
+</pre>
+</td>
+			<td>Resource configuration</td>
+		</tr>
+		<tr>
+			<td>mail.relay.service</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "port": 25,
+  "type": "ClusterIP"
+}
+</pre>
+</td>
+			<td>Service configuration</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Synapse Security</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>matrix.disabled</td>
 			<td>bool</td>
@@ -1436,14 +1328,43 @@ false
 			<td>Human readable reason for why the homeserver is blocked</td>
 		</tr>
 		<tr>
-			<td>matrix.encryptByDefault</td>
-			<td>string</td>
+			<td>matrix.security.enableRegistrationWithoutVerification</td>
+			<td>bool</td>
 			<td><pre lang="json">
-"all"
+false
 </pre>
 </td>
-			<td>Which types of rooms to enable end-to-end encryption on by default</td>
+			<td>Enable this if you want start matrix without any type of verification (email, captcha, or token-based)</td>
 		</tr>
+		<tr>
+			<td>matrix.security.macaroonSecretKey</td>
+			<td>string</td>
+			<td><pre lang="json">
+""
+</pre>
+</td>
+			<td>A secret which is used to sign access tokens.</td>
+		</tr>
+		<tr>
+			<td>matrix.security.suppressKeyServerWarning</td>
+			<td>bool</td>
+			<td><pre lang="json">
+true
+</pre>
+</td>
+			<td>This disables the warning that is emitted when the trustedKeyServers include 'matrix.org'. See below.</td>
+		</tr>
+	</tbody>
+</table>
+<h3>Synapse Federation</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>matrix.federation.allowPublicRooms</td>
 			<td>bool</td>
@@ -1490,69 +1411,41 @@ false
 </td>
 			<td>Whitelist of domains to federate with (empty for all domains except blacklisted)</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Synapse logging</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>matrix.homeserverExtra</td>
+			<td>matrix.logging</td>
 			<td>object</td>
 			<td><pre lang="json">
-{}
+{
+  "rootLogLevel": "DEBUG",
+  "sqlLogLevel": "WARNING",
+  "synapseLogLevel": "INFO"
+}
 </pre>
 </td>
-			<td>Contents will be appended to the end of the default configuration.</td>
+			<td>Matrix Synapse logging configuration</td>
 		</tr>
-		<tr>
-			<td>matrix.homeserverOverride</td>
-			<td>object</td>
-			<td><pre lang="json">
-{}
-</pre>
-</td>
-			<td>Entirety of homeserver.yaml will be replaced with the contents, if set.</td>
-		</tr>
-		<tr>
-			<td>matrix.hostname</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix.example.com"
-</pre>
-</td>
-			<td>Hostname where Synapse can be reached.</td>
-		</tr>
-		<tr>
-			<td>matrix.logging.rootLogLevel</td>
-			<td>string</td>
-			<td><pre lang="json">
-"DEBUG"
-</pre>
-</td>
-			<td>Root log level is the default log level for log outputs that do not have more specific settings.</td>
-		</tr>
-		<tr>
-			<td>matrix.logging.sqlLogLevel</td>
-			<td>string</td>
-			<td><pre lang="json">
-"WARNING"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>matrix.logging.synapseLogLevel</td>
-			<td>string</td>
-			<td><pre lang="json">
-"INFO"
-</pre>
-</td>
-			<td>The log level for the synapse server</td>
-		</tr>
-		<tr>
-			<td>matrix.presence</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>Set to false to disable presence (online/offline indicators)</td>
-		</tr>
+	</tbody>
+</table>
+<h3>Synapse Registration</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>matrix.registration.allowGuests</td>
 			<td>bool</td>
@@ -1600,6 +1493,17 @@ false
 </td>
 			<td>If set, allows registration of standard or admin accounts by anyone who has the shared secret, even if registration is otherwise disabled.</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Synapse URL Preview</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>matrix.retentionPeriod</td>
 			<td>string</td>
@@ -1608,78 +1512,6 @@ false
 </pre>
 </td>
 			<td>How long to keep redacted events in unredacted form in the database</td>
-		</tr>
-		<tr>
-			<td>matrix.search</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>Set to false to disable message searching</td>
-		</tr>
-		<tr>
-			<td>matrix.security.enableRegistrationWithoutVerification</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td>Enable this if you want start matrix without any type of verification (email, captcha, or token-based)</td>
-		</tr>
-		<tr>
-			<td>matrix.security.macaroonSecretKey</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>A secret which is used to sign access tokens.</td>
-		</tr>
-		<tr>
-			<td>matrix.security.suppressKeyServerWarning</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>This disables the warning that is emitted when the trustedKeyServers include 'matrix.org'. See below.</td>
-		</tr>
-		<tr>
-			<td>matrix.serverName</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix.example.com"
-</pre>
-</td>
-			<td>Domain name of the server</td>
-		</tr>
-		<tr>
-			<td>matrix.telemetry</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td>Enable anonymous telemetry to matrix.org</td>
-		</tr>
-		<tr>
-			<td>matrix.uploads.maxPixels</td>
-			<td>string</td>
-			<td><pre lang="json">
-"32M"
-</pre>
-</td>
-			<td>Max image size in pixels</td>
-		</tr>
-		<tr>
-			<td>matrix.uploads.maxSize</td>
-			<td>string</td>
-			<td><pre lang="json">
-"400M"
-</pre>
-</td>
-			<td>Max upload size in bytes</td>
 		</tr>
 		<tr>
 			<td>matrix.urlPreviews.enabled</td>
@@ -1730,6 +1562,17 @@ true
 </td>
 			<td>Whitelist and blacklist based on URL pattern matching</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Matrix User Verification service</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>matrix.uvs.accessToken</td>
 			<td>object</td>
@@ -1758,34 +1601,20 @@ true
 false
 </pre>
 </td>
-			<td></td>
+			<td>Enable use of Matrix UVS</td>
 		</tr>
 		<tr>
-			<td>matrix.uvs.image.pullPolicy</td>
-			<td>string</td>
+			<td>matrix.uvs.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"IfNotPresent"
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "matrixdotorg/matrix-user-verification-service",
+  "tag": "v3.0.0"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>matrix.uvs.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrixdotorg/matrix-user-verification-service"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>matrix.uvs.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"v3.0.0"
-</pre>
-</td>
-			<td></td>
+			<td>Image of UVS container</td>
 		</tr>
 		<tr>
 			<td>matrix.uvs.labels</td>
@@ -1805,7 +1634,7 @@ false
 "info"
 </pre>
 </td>
-			<td></td>
+			<td>Log level, see choices here: https://github.com/winstonjs/winston#logging-levels</td>
 		</tr>
 		<tr>
 			<td>matrix.uvs.replicaCount</td>
@@ -1814,79 +1643,44 @@ false
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica count</td>
 		</tr>
 		<tr>
-			<td>matrix.uvs.service.port</td>
-			<td>int</td>
+			<td>matrix.uvs.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-3000
+{
+  "port": 3000,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
+	</tbody>
+</table>
+<h3>PostgreSQL</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>matrix.uvs.service.type</td>
-			<td>string</td>
+			<td>postgresql.auth</td>
+			<td>object</td>
 			<td><pre lang="json">
-"ClusterIP"
+{
+  "database": "matrix",
+  "existingSecret": "",
+  "password": "pa$$w0rd",
+  "username": "matrixuser"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>nameOverride</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>networkPolicies.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.auth.database</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrix"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.auth.existingSecret</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.auth.password</td>
-			<td>string</td>
-			<td><pre lang="json">
-"pa$$w0rd"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.auth.username</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrixuser"
-</pre>
-</td>
-			<td></td>
+			<td>Auth configuration in database</td>
 		</tr>
 		<tr>
 			<td>postgresql.enabled</td>
@@ -1895,7 +1689,7 @@ false
 true
 </pre>
 </td>
-			<td></td>
+			<td>Whether to deploy the bitnami/postgresql chart with this chart. If disabled, make sure PostgreSQL is available at the hostname below and credentials are configured below.</td>
 		</tr>
 		<tr>
 			<td>postgresql.hostname</td>
@@ -1904,25 +1698,19 @@ true
 ""
 </pre>
 </td>
-			<td></td>
+			<td>Hostname of external database, if internal not used</td>
 		</tr>
 		<tr>
-			<td>postgresql.image.repository</td>
-			<td>string</td>
+			<td>postgresql.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"bitnami/postgresql"
+{
+  "repository": "bitnami/postgresql",
+  "tag": "16.0.0-debian-11-r13"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"16.0.0-debian-11-r13"
-</pre>
-</td>
-			<td></td>
+			<td>Database image configuration</td>
 		</tr>
 		<tr>
 			<td>postgresql.port</td>
@@ -1931,189 +1719,106 @@ true
 5432
 </pre>
 </td>
-			<td></td>
+			<td>Port of external database</td>
 		</tr>
 		<tr>
-			<td>postgresql.primary.containerSecurityContext.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.containerSecurityContext.runAsUser</td>
-			<td>int</td>
-			<td><pre lang="json">
-1001
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.initdb.args</td>
-			<td>string</td>
-			<td><pre lang="json">
-"--encoding=UTF8 --lc-collate=C --lc-ctype=C"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.initdb.scriptsConfigMap</td>
-			<td>string</td>
-			<td><pre lang="json">
-"{{ .Release.Name }}-postgresql-initdb"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.persistence.size</td>
-			<td>string</td>
-			<td><pre lang="json">
-"80Gi"
-</pre>
-</td>
-			<td>Size of database storage</td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.persistence.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.podSecurityContext.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.primary.podSecurityContext.fsGroup</td>
-			<td>int</td>
-			<td><pre lang="json">
-1001
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.autoGenerated</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>Generate automatically self-signed TLS certificates (disable if you want use external certificate)</td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.certCAFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.certFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.certKeyFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.certificatesSecret</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Name of an existing secret that contains certificates.</td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>postgresql.tls.sslMode</td>
-			<td>string</td>
-			<td><pre lang="json">
-"require"
-</pre>
-</td>
-			<td>Allowed modes: disable, allow, prefer, require, verify-ca, verify-full</td>
-		</tr>
-		<tr>
-			<td>postgresql.volumePermissions</td>
+			<td>postgresql.primary.containerSecurityContext</td>
 			<td>object</td>
 			<td><pre lang="json">
 {
-  "enabled": true
+  "enabled": true,
+  "runAsUser": 1001
 }
+</pre>
+</td>
+			<td>Container security</td>
+		</tr>
+		<tr>
+			<td>postgresql.primary.initdb</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "args": "--encoding=UTF8 --lc-collate=C --lc-ctype=C",
+  "scriptsConfigMap": "{{ .Release.Name }}-postgresql-initdb"
+}
+</pre>
+</td>
+			<td>Initdb configuration</td>
+		</tr>
+		<tr>
+			<td>postgresql.primary.persistence</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "size": "10Gi",
+  "storageClass": ""
+}
+</pre>
+</td>
+			<td>PVC configuration of database</td>
+		</tr>
+		<tr>
+			<td>postgresql.primary.podSecurityContext</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "enabled": true,
+  "fsGroup": 1001
+}
+</pre>
+</td>
+			<td>Pod security</td>
+		</tr>
+		<tr>
+			<td>postgresql.tls</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "autoGenerated": true,
+  "certCAFilename": "",
+  "certFilename": "",
+  "certKeyFilename": "",
+  "certificatesSecret": "",
+  "enabled": true,
+  "sslMode": "require"
+}
+</pre>
+</td>
+			<td>Whether to connect to the database over TLS.</td>
+		</tr>
+		<tr>
+			<td>postgresql.volumePermissions.enabled</td>
+			<td>bool</td>
+			<td><pre lang="json">
+true
 </pre>
 </td>
 			<td>Enable init container that changes the owner and group of the persistent volume</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Redis</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>redis.auth.database</td>
-			<td>string</td>
+			<td>redis.auth</td>
+			<td>object</td>
 			<td><pre lang="json">
-""
+{
+  "database": "",
+  "enabled": false,
+  "existingSecret": "",
+  "password": "pa$$w0rd"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.auth.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.auth.existingSecret</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Use this if you want to provide password (auth.existingSecretPasswordKey) via Kubernetes secret.</td>
-		</tr>
-		<tr>
-			<td>redis.auth.password</td>
-			<td>string</td>
-			<td><pre lang="json">
-"pa$$w0rd"
-</pre>
-</td>
-			<td></td>
+			<td>Auth configuration in database</td>
 		</tr>
 		<tr>
 			<td>redis.enabled</td>
@@ -2131,25 +1836,19 @@ false
 ""
 </pre>
 </td>
-			<td>Set this if redis.enabled = false</td>
+			<td>Hostname of external database, if internal not used</td>
 		</tr>
 		<tr>
-			<td>redis.image.repository</td>
-			<td>string</td>
+			<td>redis.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"bitnami/redis"
+{
+  "repository": "bitnami/redis",
+  "tag": "7.2.3-debian-11-r0"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"7.2.3-debian-11-r0"
-</pre>
-</td>
-			<td></td>
+			<td>Database image configuration</td>
 		</tr>
 		<tr>
 			<td>redis.port</td>
@@ -2158,127 +1857,80 @@ false
 6379
 </pre>
 </td>
-			<td></td>
+			<td>Port of external database</td>
 		</tr>
 		<tr>
-			<td>redis.primary.containerSecurityContext.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.primary.containerSecurityContext.runAsUser</td>
-			<td>int</td>
-			<td><pre lang="json">
-1001
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.primary.persistence.size</td>
-			<td>string</td>
-			<td><pre lang="json">
-"1Gi"
-</pre>
-</td>
-			<td>Size of redis storage</td>
-		</tr>
-		<tr>
-			<td>redis.primary.persistence.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
-		</tr>
-		<tr>
-			<td>redis.primary.podSecurityContext.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.primary.podSecurityContext.fsGroup</td>
-			<td>int</td>
-			<td><pre lang="json">
-1001
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.tls.autoGenerated</td>
-			<td>bool</td>
-			<td><pre lang="json">
-true
-</pre>
-</td>
-			<td>Generate automatically self-signed TLS certificates (disable if you want use external certificate)</td>
-		</tr>
-		<tr>
-			<td>redis.tls.certCAFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.tls.certFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.tls.certKeyFilename</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.tls.enabled</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>redis.tls.existingSecret</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Name of an existing secret that contains certificates.</td>
-		</tr>
-		<tr>
-			<td>redis.volumePermissions</td>
+			<td>redis.primary.containerSecurityContext</td>
 			<td>object</td>
 			<td><pre lang="json">
 {
-  "enabled": true
+  "enabled": true,
+  "runAsUser": 1001
 }
+</pre>
+</td>
+			<td>Container security</td>
+		</tr>
+		<tr>
+			<td>redis.primary.persistence</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "size": "1Gi",
+  "storageClass": ""
+}
+</pre>
+</td>
+			<td>PVC configuration of database</td>
+		</tr>
+		<tr>
+			<td>redis.primary.podSecurityContext</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "enabled": true,
+  "fsGroup": 1001
+}
+</pre>
+</td>
+			<td>Pod security</td>
+		</tr>
+		<tr>
+			<td>redis.tls</td>
+			<td>object</td>
+			<td><pre lang="json">
+{
+  "autoGenerated": true,
+  "certCAFilename": "",
+  "certFilename": "",
+  "certKeyFilename": "",
+  "enabled": false,
+  "existingSecret": ""
+}
+</pre>
+</td>
+			<td>Whether to connect to the database over TLS.</td>
+		</tr>
+		<tr>
+			<td>redis.volumePermissions.enabled</td>
+			<td>bool</td>
+			<td><pre lang="json">
+true
 </pre>
 </td>
 			<td>Enable init container that changes the owner and group of the persistent volume</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Element (Riot)</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>riot.baseUrl</td>
 			<td>string</td>
@@ -2286,21 +1938,7 @@ false
 "https://matrix.example.com"
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.branding</td>
-			<td>object</td>
-			<td><pre lang="json">
-{
-  "authFooterLinks": [],
-  "authHeaderLogoUrl": "",
-  "brand": "Element",
-  "welcomeBackgroundUrl": ""
-}
-</pre>
-</td>
-			<td>Organization/enterprise branding</td>
+			<td>DNS name</td>
 		</tr>
 		<tr>
 			<td>riot.branding.authFooterLinks</td>
@@ -2348,51 +1986,17 @@ true
 			<td>Set to false to disable a deployment of Element.</td>
 		</tr>
 		<tr>
-			<td>riot.image.pullPolicy</td>
-			<td>string</td>
-			<td><pre lang="json">
-"IfNotPresent"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"vectorim/element-web"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"v1.11.47"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.integrations</td>
+			<td>riot.image</td>
 			<td>object</td>
 			<td><pre lang="json">
 {
-  "api": "https://scalar.vector.im/api",
-  "enabled": true,
-  "ui": "https://scalar.vector.im/",
-  "widgets": [
-    "https://scalar.vector.im/_matrix/integrations/v1",
-    "https://scalar.vector.im/api",
-    "https://scalar-staging.vector.im/_matrix/integrations/v1",
-    "https://scalar-staging.vector.im/api",
-    "https://scalar-staging.riot.im/scalar/api"
-  ]
+  "pullPolicy": "IfNotPresent",
+  "repository": "vectorim/element-web",
+  "tag": "v1.11.47"
 }
 </pre>
 </td>
-			<td>Element integrations configuration</td>
+			<td>Image configuration of container</td>
 		</tr>
 		<tr>
 			<td>riot.integrations.api</td>
@@ -2437,12 +2041,10 @@ true
 			<td>Array of API paths providing widgets</td>
 		</tr>
 		<tr>
-			<td>riot.jitsi</td>
-			<td>object</td>
+			<td>riot.jitsi.domain</td>
+			<td>string</td>
 			<td><pre lang="json">
-{
-  "domain": ""
-}
+""
 </pre>
 </td>
 			<td>Use this value to link with external Jitsi instance</td>
@@ -2488,31 +2090,17 @@ true
 			<td>Prefix before permalinks generated when users share links to rooms, users, or messages. If running an unfederated Synapse, set the below to the URL of your Element instance.</td>
 		</tr>
 		<tr>
-			<td>riot.probes.liveness</td>
+			<td>riot.probes</td>
 			<td>object</td>
 			<td><pre lang="json">
-{}
+{
+  "liveness": {},
+  "readiness": {},
+  "startup": {}
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.probes.readiness</td>
-			<td>object</td>
-			<td><pre lang="json">
-{}
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.probes.startup</td>
-			<td>object</td>
-			<td><pre lang="json">
-{}
-</pre>
-</td>
-			<td></td>
+			<td>Configure timings for readiness, startup, and liveness probes here</td>
 		</tr>
 		<tr>
 			<td>riot.replicaCount</td>
@@ -2521,7 +2109,7 @@ true
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica configuration</td>
 		</tr>
 		<tr>
 			<td>riot.resources</td>
@@ -2530,7 +2118,7 @@ true
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Resources configuration</td>
 		</tr>
 		<tr>
 			<td>riot.roomDirectoryServers</td>
@@ -2544,22 +2132,16 @@ true
 			<td>Servers to show in the Explore menu (the current server is always shown)</td>
 		</tr>
 		<tr>
-			<td>riot.service.port</td>
-			<td>int</td>
+			<td>riot.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-80
+{
+  "port": 80,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>riot.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
 		<tr>
 			<td>riot.welcomeUserId</td>
@@ -2570,50 +2152,45 @@ true
 </td>
 			<td>Set to the user ID (@username:domain.tld) of a bot to invite all new users to a DM with the bot upon registration</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Synapse</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
-			<td>synapse.hostAliases[0].hostnames[0]</td>
-			<td>string</td>
+			<td>synapse.hostAliases</td>
+			<td>list</td>
 			<td><pre lang="json">
-"matrix.example.com"
+[
+  {
+    "hostnames": [
+      "matrix.example.com"
+    ],
+    "ip": "1.1.1.1"
+  }
+]
 </pre>
 </td>
-			<td></td>
+			<td>Host aliases configuration</td>
 		</tr>
 		<tr>
-			<td>synapse.hostAliases[0].ip</td>
-			<td>string</td>
+			<td>synapse.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"1.1.1.1"
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "matrixdotorg/synapse",
+  "tag": "v1.95.0"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.image.pullPolicy</td>
-			<td>string</td>
-			<td><pre lang="json">
-"IfNotPresent"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"matrixdotorg/synapse"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"v1.95.0"
-</pre>
-</td>
-			<td></td>
+			<td>Synapse image configuration</td>
 		</tr>
 		<tr>
 			<td>synapse.labels</td>
@@ -2640,96 +2217,27 @@ true
 			<td>Prometheus metrics for Synapse</td>
 		</tr>
 		<tr>
-			<td>synapse.metrics.enabled</td>
-			<td>bool</td>
+			<td>synapse.probes</td>
+			<td>object</td>
 			<td><pre lang="json">
-true
+{
+  "liveness": {
+    "periodSeconds": 10,
+    "timeoutSeconds": 5
+  },
+  "readiness": {
+    "periodSeconds": 10,
+    "timeoutSeconds": 5
+  },
+  "startup": {
+    "failureThreshold": 6,
+    "periodSeconds": 5,
+    "timeoutSeconds": 5
+  }
+}
 </pre>
 </td>
-			<td>Whether Synapse should capture metrics on an additional endpoint</td>
-		</tr>
-		<tr>
-			<td>synapse.metrics.port</td>
-			<td>int</td>
-			<td><pre lang="json">
-9092
-</pre>
-</td>
-			<td>Port to listen on for metrics scraping</td>
-		</tr>
-		<tr>
-			<td>synapse.plugins</td>
-			<td>list</td>
-			<td><pre lang="json">
-[
-  "git+https://github.com/matrix-org/synapse-s3-storage-provider.git"
-]
-</pre>
-</td>
-			<td>These plugins will be installed via pip3 install command at the start of synapse container</td>
-		</tr>
-		<tr>
-			<td>synapse.probes.liveness.periodSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-10
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.liveness.timeoutSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-5
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.readiness.periodSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-10
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.readiness.timeoutSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-5
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.startup.failureThreshold</td>
-			<td>int</td>
-			<td><pre lang="json">
-6
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.startup.periodSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-5
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.probes.startup.timeoutSeconds</td>
-			<td>int</td>
-			<td><pre lang="json">
-5
-</pre>
-</td>
-			<td></td>
+			<td>Configure timings for readiness, startup, and liveness probes here</td>
 		</tr>
 		<tr>
 			<td>synapse.replicaCount</td>
@@ -2738,62 +2246,63 @@ true
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica count</td>
 		</tr>
 		<tr>
-			<td>synapse.resources.limits.memory</td>
-			<td>string</td>
+			<td>synapse.resources</td>
+			<td>object</td>
 			<td><pre lang="json">
-"16Gi"
+{
+  "limits": {
+    "memory": "16Gi"
+  },
+  "requests": {
+    "memory": "8Gi"
+  }
+}
 </pre>
 </td>
-			<td></td>
+			<td>Resource configuration</td>
 		</tr>
 		<tr>
-			<td>synapse.resources.requests.memory</td>
-			<td>string</td>
+			<td>synapse.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-"8Gi"
+{
+  "federation": {
+    "port": 80,
+    "type": "ClusterIP"
+  },
+  "port": 80,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
 		<tr>
-			<td>synapse.service.federation.port</td>
-			<td>int</td>
+			<td>synapse.service.federation</td>
+			<td>object</td>
 			<td><pre lang="json">
-80
+{
+  "port": 80,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
+			<td>Federation service configuration</td>
 		</tr>
-		<tr>
-			<td>synapse.service.federation.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.service.port</td>
-			<td>int</td>
-			<td><pre lang="json">
-80
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapse.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
-		</tr>
+	</tbody>
+</table>
+<h3>Synapse Admin</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>synapseAdmin.enabled</td>
 			<td>bool</td>
@@ -2801,34 +2310,20 @@ true
 false
 </pre>
 </td>
-			<td></td>
+			<td>Enables deployment of matrix admin website</td>
 		</tr>
 		<tr>
-			<td>synapseAdmin.image.pullPolicy</td>
-			<td>string</td>
+			<td>synapseAdmin.image</td>
+			<td>object</td>
 			<td><pre lang="json">
-"IfNotPresent"
+{
+  "pullPolicy": "IfNotPresent",
+  "repository": "awesometechnologies/synapse-admin",
+  "tag": "0.8.7"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapseAdmin.image.repository</td>
-			<td>string</td>
-			<td><pre lang="json">
-"awesometechnologies/synapse-admin"
-</pre>
-</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapseAdmin.image.tag</td>
-			<td>string</td>
-			<td><pre lang="json">
-"0.8.7"
-</pre>
-</td>
-			<td></td>
+			<td>Image configuration of container</td>
 		</tr>
 		<tr>
 			<td>synapseAdmin.labels</td>
@@ -2871,7 +2366,7 @@ false
 1
 </pre>
 </td>
-			<td></td>
+			<td>Replica configuration</td>
 		</tr>
 		<tr>
 			<td>synapseAdmin.resources</td>
@@ -2880,25 +2375,19 @@ false
 {}
 </pre>
 </td>
-			<td></td>
+			<td>Resources configuration</td>
 		</tr>
 		<tr>
-			<td>synapseAdmin.service.port</td>
-			<td>int</td>
+			<td>synapseAdmin.service</td>
+			<td>object</td>
 			<td><pre lang="json">
-80
+{
+  "port": 80,
+  "type": "ClusterIP"
+}
 </pre>
 </td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>synapseAdmin.service.type</td>
-			<td>string</td>
-			<td><pre lang="json">
-"ClusterIP"
-</pre>
-</td>
-			<td></td>
+			<td>Service configuration</td>
 		</tr>
 		<tr>
 			<td>synapseAdmin.useSecureConnection</td>
@@ -2909,6 +2398,17 @@ true
 </td>
 			<td>Set false if you want connect admin to synapse via http</td>
 		</tr>
+	</tbody>
+</table>
+<h3>Synapse volumes</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
 		<tr>
 			<td>volumes.media</td>
 			<td>object</td>
@@ -2922,41 +2422,38 @@ true
 			<td>Uploaded attachments/multimedia</td>
 		</tr>
 		<tr>
-			<td>volumes.media.capacity</td>
-			<td>string</td>
+			<td>volumes.signingKey</td>
+			<td>object</td>
 			<td><pre lang="json">
-"10Gi"
+{
+  "capacity": "1Mi",
+  "storageClass": ""
+}
 </pre>
 </td>
-			<td>Capacity of the media persistent volume claim</td>
+			<td>Signing key storage</td>
 		</tr>
-		<tr>
-			<td>volumes.media.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
+	</tbody>
+</table>
+
+<h3>Other Values</h3>
+<table>
+	<thead>
+		<th>Key</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</thead>
+	<tbody>
+	<tr>
+		<td>externalSecret.enabled</td>
+		<td>bool</td>
+		<td><pre lang="json">
+false
 </pre>
 </td>
-			<td>Storage class (optional)</td>
-		</tr>
-		<tr>
-			<td>volumes.signingKey.capacity</td>
-			<td>string</td>
-			<td><pre lang="json">
-"1Mi"
-</pre>
-</td>
-			<td>Capacity of the signing key PVC</td>
-		</tr>
-		<tr>
-			<td>volumes.signingKey.storageClass</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Storage class (optional)</td>
-		</tr>
+		<td>Enable using of External Secrets addon (must be installed separately)</td>
+	</tr>
 	</tbody>
 </table>
 
