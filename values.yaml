@@ -1,65 +1,98 @@
 # Runtime configuration for Synapse and settings related to the Matrix protocol
+
+# -- Helm chart name override
+# @section -- Globals
+nameOverride: ""
+# -- Helm chart fullname override
+# @section -- Globals
+fullnameOverride: ""
+
+# -- Image pull secrets
+# @section -- Globals
+imagePullSecrets: {}
+
+# -- Network policies configuration
+# @section -- Globals
+networkPolicies:
+  enabled: false
+
 matrix:
   # Manual overrides for homeserver.yaml, the main configuration file for Synapse
-  # If homeserverOverride is set, the entirety of homeserver.yaml will be replaced with the contents.
-  # If homeserverExtra is set, the contents will be appended to the end of the default configuration.
+  # -- Entirety of homeserver.yaml will be replaced with the contents, if set.
+  # @section -- Globals
+  homeserverOverride: {}
+  # -- Contents will be appended to the end of the default configuration.
+  # @section -- Globals
+  homeserverExtra: {}
   # It is highly recommended that you take a look at the defaults in templates/synapse/_homeserver.yaml, to get a sense
   # of the requirements and default configuration options to use other services in this chart.
-  # homeserverOverride: {}
-  # homeserverExtra: {}
 
-  # Domain name of the server
+  # -- Domain name of the server
+  # @section -- Globals
+  serverName: "matrix.example.com"
   # This is not necessarily the host name where the service is reachable. In fact, you may want to omit any subdomains
   # from this value as the server name set here will be the name of your homeserver in the fediverse, and will be the
   # domain name at the end of every user's username
-  serverName: "matrix.example.com"
 
-  # Enable anonymous telemetry to matrix.org
+  # -- Enable anonymous telemetry to matrix.org
+  # @section -- Globals
   telemetry: false
 
-  # Hostname where Synapse can be reached.
+  # -- Hostname where Synapse can be reached.
+  # @section -- Globals
+  hostname: "matrix.example.com"
   # This is *optional* if an Ingress is configured below. If hostname is unspecified, the Synapse hostname of the
   # Ingress will be used
-  hostname: "matrix.example.com"
 
-  # Set to false to disable presence (online/offline indicators)
+  # -- Set to false to disable presence (online/offline indicators)
+  # @section -- Globals
   presence: true
 
-  # Set to true to block non-admins from inviting users to any rooms
+  # -- Set to true to block non-admins from inviting users to any rooms
+  # @section -- Globals
   blockNonAdminInvites: false
 
-  # Set to false to disable message searching
+  # -- Set to false to disable message searching
+  # @section -- Globals
   search: true
 
-  # Which types of rooms to enable end-to-end encryption on by default
+  # -- Which types of rooms to enable end-to-end encryption on by default
+  # @section -- Globals
+  encryptByDefault: all
   # off: none
   # invite: private messages, or rooms created with the private_chat or trusted_private_chat room preset
   # all: all rooms
-  encryptByDefault: all
 
-  # Email address of the administrator
+  # -- Email address of the administrator
+  # @section -- Globals
   adminEmail: admin@example.com
 
   # Settings related to image and multimedia uploads
   uploads:
-    # Max upload size in bytes
+    # -- Max upload size in bytes
+    # @section -- Globals
     maxSize: 400M
 
-    # Max image size in pixels
+    # -- Max image size in pixels
+    # @section -- Globals
     maxPixels: 32M
 
   # Settings related to federation
   federation:
-    # Set to false to disable federation and run an isolated homeserver
+    # -- Set to true to enable federation and run an isolated homeserver
+    # @section -- Synapse Federation
     enabled: false
 
-    # Set to false to disallow members of other homeservers from fetching *public* rooms
+    # -- Set to true to allow members of other homeservers to fetch *public* rooms
+    # @section -- Synapse Federation
     allowPublicRooms: false
 
-    # Whitelist of domains to federate with (comment for all domains except blacklisted)
-    # whitelist: []
+    # -- Whitelist of domains to federate with (empty for all domains except blacklisted)
+    # @section -- Synapse Federation
+    whitelist: []
 
-    # IP addresses to blacklist federation requests to
+    # -- IP addresses to blacklist federation requests to
+    # @section -- Synapse Federation
     blacklist:
       - '127.0.0.0/8'
       - '10.0.0.0/8'
@@ -73,41 +106,46 @@ matrix:
 
   # User registration settings
   registration:
-    # Allow new users to register an account
+    # -- Allow new users to register an account
+    # @section -- Synapse Registration
     enabled: false
 
-    # If set, allows registration of standard or admin accounts by anyone who
+    # -- If set, allows registration of standard or admin accounts by anyone who
     # has the shared secret, even if registration is otherwise disabled.
-    #
+    # @section -- Synapse Registration
     sharedSecret: ""
 
-    # Allow users to join rooms as a guest
+    # -- Allow users to join rooms as a guest
+    # @section -- Synapse Registration
     allowGuests: false
 
-    # Required "3PIDs" - third-party identifiers such as email or msisdn (SMS)
-    # required3Pids:
-    #   - email
-    #   - msisdn
+    # -- Required "3PIDs" - third-party identifiers such as email or msisdn (SMS)
+    # @section -- Synapse Registration
+    required3Pids: []
 
-    # Rooms to automatically join all new users to
+    # -- Rooms to automatically join all new users to
+    # @section -- Synapse Registration
     autoJoinRooms:
       - '"#lobby:matrix.example.com"'
 
   # Settings for the URL preview crawler
   urlPreviews:
-    # Enable URL previews.
+    # -- Enable URL previews.
+    # @section -- Synapse URL Preview
+    enabled: true
     # WARNING: Make sure to review the default rules below to ensure that users cannot crawl
     # sensitive internal endpoints in your cluster.
-    enabled: true
 
     # Blacklists and whitelists for the URL preview crawler
     rules:
-      # Maximum size of a crawlable page. Keep this low to prevent a DOS vector
+      # -- Maximum size of a crawlable page. Keep this low to prevent a DOS vector
+      # @section -- Synapse URL Preview
       maxSize: 10M
 
-      # Whitelist and blacklist for crawlable IP addresses
+      # -- Whitelist and blacklist for crawlable IP addresses
+      # @section -- Synapse URL Preview
       ip:
-        # whitelist:
+        whitelist: []
         blacklist:
           - '127.0.0.0/8'
           - '10.0.0.0/8'
@@ -119,7 +157,8 @@ matrix:
           - 'fe80::/64'
           - 'fc00::/7'
 
-      # Whitelist and blacklist based on URL pattern matching
+      # -- Whitelist and blacklist based on URL pattern matching
+      # @section -- Synapse URL Preview
       url: {}
         # whitelist:
         # blacklist:
@@ -140,25 +179,28 @@ matrix:
         #  # blacklist any URL with a literal IPv4 address
         #  - netloc: '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'
 
-  # How long to keep redacted events in unredacted form in the database
+  # -- How long to keep redacted events in unredacted form in the database
+  # @section -- Synapse URL Preview
   retentionPeriod: 7d
 
+  # Matrix Synapse security configuration
   security:
-    # a secret which is used to sign access tokens. If none is specified,
-    # the registration_shared_secret is used, if one is given; otherwise,
-    # a secret key is derived from the signing key.
-    #
+    # -- A secret which is used to sign access tokens.
+    # @section -- Synapse Security
     macaroonSecretKey: ""
+    # If none is specified, the registration_shared_secret is used, if one is given; otherwise,
+    # a secret key is derived from the signing key.
 
-    # Enable this if you want start matrix without any type of verification (email, captcha, or token-based)
-    # Without it the deployment won't start.
+    # -- Enable this if you want start matrix without any type of verification (email, captcha, or token-based)
+    # @section -- Synapse Security
     enableRegistrationWithoutVerification: false
+    # Without it the deployment won't start.
 
-    # This disables the warning that is emitted when the
+    # -- This disables the warning that is emitted when the
     # trustedKeyServers include 'matrix.org'. See below.
-    # Set to false to re-enable the warning.
-    #
+    # @section -- Synapse Security
     suppressKeyServerWarning: true
+    # Set to false to re-enable the warning.
 
     # The trusted servers to download signing keys from.
     #
@@ -201,96 +243,137 @@ matrix:
     #     acceptKeysInsecurely: false
     #   - serverName: my_other_trusted_server.example.com
 
-  # Set to true to globally block access to the homeserver
+  # -- Set to true to globally block access to the homeserver
+  # @section -- Synapse Security
   disabled: false
-  # Human readable reason for why the homeserver is blocked
+  # -- Human readable reason for why the homeserver is blocked
+  # @section -- Synapse Security
   disabledMessage: ""
 
-  # Matrix user verification service
+  # Matrix user verification service (Required for Jitsi deployment)
+  # @section -- Matrix User Verification service
   uvs:
+    # -- Enable use of Matrix UVS
+    # @section -- Matrix User Verification service
     enabled: false
+    # -- Image of UVS container
+    # @section -- Matrix User Verification service
     image:
       repository: "matrixdotorg/matrix-user-verification-service"
       tag: "v3.0.0"
       pullPolicy: IfNotPresent
+    # -- Replica count
+    # @section -- Matrix User Verification service
     replicaCount: 1
+
     # TODO: Find way how to generate access token without user interaction.
-    # Provide here path to a secret with Matrix Synapse API key.
-    # This must be token from admin user, currently can be fetched manually from Riot/Element dashboard.
+    # -- Secret access token for Matrix Synapse API.
+    # @section -- Matrix User Verification service
     accessToken:
       secretName: ""
       secretKey: ""
-    # Disable check for non private IP range of homeserver. E.g. set to `true` if your homeserver domain resolves to a private IP.
+    # This must be token from admin user, currently can be fetched manually from Riot/Element dashboard.
+
+    # -- Disable check for non private IP range of homeserver. E.g. set to `true` if your homeserver domain resolves to a private IP.
+    # @section -- Matrix User Verification service
     disableIpBlacklist: true
-    # Log level, see choices here: https://github.com/winstonjs/winston#logging-levels
+
+    # -- Log level, see choices here: https://github.com/winstonjs/winston#logging-levels
+    # @section -- Matrix User Verification service
     logLevel: "info"
 
+    # -- Service configuration
+    # @section -- Matrix User Verification service
     service:
       type: ClusterIP
       port: 3000
 
+    # -- UVS specific labels
+    # @section -- Matrix User Verification service
     labels:
       component: uvs
 
+  # -- Matrix Synapse logging configuration
+  # @section -- Synapse Logging
   logging:
-    # Root log level is the default log level for log outputs that do not have more
-    # specific settings.
+    # Root log level is the default log level for log outputs that do not have more specific settings.
     rootLogLevel: DEBUG
-    # beware: increasing this to DEBUG will make synapse log sensitive
-    # information such as access tokens.
+    # beware: increasing this to DEBUG will make synapse log sensitive information such as access tokens.
     sqlLogLevel: WARNING
     # The log level for the synapse server
     synapseLogLevel: INFO
 
 # Persistent volumes configuration
 volumes:
-  # Uploaded attachments/multimedia
+  # -- Uploaded attachments/multimedia
+  # @section -- Synapse Volumes
   media:
-    # Capacity of the media persistent volume claim
     capacity: 10Gi
     # Storage class (optional)
     storageClass: ""
+  # -- Signing key storage
+  # @section -- Synapse Volumes
   signingKey:
-    # Capacity of the signing key PVC
-    # Note: 1Mi is more than enough, but some cloud providers set a minimum PVC size of 1Mi or 1Gi, adjust as necessary
+    # 1Mi is more than enough, but some cloud providers set a minimum PVC size of 1Mi or 1Gi, adjust as necessary
     capacity: 1Mi
     # Storage class (optional)
     storageClass: ""
 
 # TODO: Create dynamic configuration for external secret
 externalSecret:
+  # -- Enable using of External Secrets addon (must be installed separately)
   enabled: false
 
+# Kubernetes Ingress configuration
 ingress:
+  # -- Enables ingress configuration to expose release
+  # @section -- Ingress
   enabled: false
-  # Whether to expose the federation API behind the Ingress
-  # If you would rather use an external proxy to run federation on a port other than 443, set this to false and set the synapse.service.federation.type value to either LoadBalancer or NodePort
+  # -- Whether to expose the federation API behind the Ingress
+  # @section -- Ingress
   federation: true
+  # If you would rather use an external proxy to run federation on a port other than 443, set this to false and set the synapse.service.federation.type value to either LoadBalancer or NodePort
+  # -- Ingress class name
+  # @section -- Ingress
   className: ""
+  # -- For HTTPS access of resources (recommended)
+  # @section -- Ingress
   tls: []
+  # -- DNS names of exposed services
+  # @section -- Ingress
   hosts:
     synapse: matrix.example.com
     admin: admin.matrix.example.com
     riot: element.matrix.example.com
     federation: federation.matrix.example.com
     jitsi: meet.example.com
+  # -- Ingress related annotations
+  # @section -- Ingress
   annotations:
     # This annotation is required for the Nginx ingress provider. You can remove it if you use a different ingress provider
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_intercept_errors off;
 
-# PostgreSQL Database Configuration
+# PostgreSQL Database configuration
 postgresql:
-  # Whether to deploy the bitnami/postgresql chart with this chart. If disabled, make sure PostgreSQL is available at the hostname below and credentials are configured below.
+  # -- Whether to deploy the bitnami/postgresql chart with this chart. If disabled, make sure PostgreSQL is available at the hostname below and credentials are configured below.
+  # @section -- PostgreSQL
   enabled: true
+  # -- Database image configuration
+  # @section -- PostgreSQL
   image:
     repository: "bitnami/postgresql"
     tag: "16.0.0-debian-11-r13"
 
-  # Set this if postgresql.enabled = false
+  # -- Hostname of external database, if internal not used
+  # @section -- PostgreSQL
   hostname: ""
+  # -- Port of external database
+  # @section -- PostgreSQL
   port: 5432
 
+  # -- Auth configuration in database
+  # @section -- PostgreSQL
   auth:
     database: "matrix"
     username: "matrixuser"
@@ -299,14 +382,16 @@ postgresql:
     # auth.postgresPassword, auth.password, auth.replicationPassword will be ignored.
     existingSecret: ""
 
-  # Whether to connect to the database over TLS.
+  # -- Whether to connect to the database over TLS.
+  # @section -- PostgreSQL
   tls:
     enabled: true
     # Allowed modes: disable, allow, prefer, require, verify-ca, verify-full
     sslMode: "require"
     # Generate automatically self-signed TLS certificates (disable if you want use external certificate)
-    # Autogenerated secrets will have name "{{ .Release.Name }}-postgresql-crt"
     autoGenerated: true
+    # Autogenerated secrets will have name "{{ .Release.Name }}-postgresql-crt"
+
     # Name of an existing secret that contains certificates.
     certificatesSecret: ""
     certFilename: "" # "tls.crt"
@@ -314,38 +399,56 @@ postgresql:
     certCAFilename: "" # "ca.crt"
 
   primary:
+    # -- PVC configuration of database
+    # @section -- PostgreSQL
     persistence:
+      size: 10Gi
+      # Storage class (optional)
       storageClass: ""
-      size: 80Gi
 
+    # -- Container security
+    # @section -- PostgreSQL
     containerSecurityContext:
       enabled: true
       runAsUser: 1001
+    # -- Pod security
+    # @section -- PostgreSQL
     podSecurityContext:
       enabled: true
       fsGroup: 1001
     # If postgresql.enabled, bitnami/postgresql will run the scripts in templates/postgresql/initdb-configmap.yaml
     # If using an external Postgres server, make sure to configure the database as specified at https://github.com/matrix-org/synapse/blob/master/docs/postgres.md
+    # -- Initdb configuration
+    # @section -- PostgreSQL
     initdb:
       args: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
       scriptsConfigMap: "{{ .Release.Name }}-postgresql-initdb"
 
-  # Enable init container that changes the owner and group of the persistent volume
   volumePermissions:
+    # -- Enable init container that changes the owner and group of the persistent volume
+    # @section -- PostgreSQL
     enabled: true
 
 # Configuration for Redis when using workers.
 redis:
-  # This must be enabled when using workers.
+  # -- This must be enabled when using workers.
+  # @section -- Redis
   enabled: false
+  # -- Database image configuration
+  # @section -- Redis
   image:
     repository: "bitnami/redis"
     tag: "7.2.3-debian-11-r0"
 
-  # Set this if redis.enabled = false
+  # -- Hostname of external database, if internal not used
+  # @section -- Redis
   hostname: ""
+  # -- Port of external database
+  # @section -- Redis
   port: 6379
 
+  # -- Auth configuration in database
+  # @section -- Redis
   auth:
     enabled: false
     database: ""
@@ -354,52 +457,73 @@ redis:
     # auth.password will be ignored.
     existingSecret: ""
 
+  # -- Whether to connect to the database over TLS.
+  # @section -- Redis
   tls:
     enabled: false
     # Generate automatically self-signed TLS certificates (disable if you want use external certificate)
     autoGenerated: true
     # Name of an existing secret that contains certificates.
-    # Autogenerated secrets will have name "{{ .Release.Name }}-redis-crt"
     existingSecret: ""
+    # Autogenerated secrets will have name "{{ .Release.Name }}-redis-crt"
     certFilename: "" # "tls.crt"
     certKeyFilename: "" # "tls.key"
     certCAFilename: "" # "ca.crt"
 
   primary:
+    # -- PVC configuration of database
+    # @section -- Redis
     persistence:
-      storageClass: ""
       size: 1Gi
+      # Storage class (optional)
+      storageClass: ""
 
+    # -- Container security
+    # @section -- Redis
     containerSecurityContext:
       enabled: true
       runAsUser: 1001
+    # -- Pod security
+    # @section -- Redis
     podSecurityContext:
       enabled: true
       fsGroup: 1001
 
-  # Enable init container that changes the owner and group of the persistent volume
   volumePermissions:
+    # -- Enable init container that changes the owner and group of the persistent volume
+    # @section -- Redis
     enabled: true
 
 # Synapse Kubernetes resource settings
 synapse:
+  # -- Synapse image configuration
+  # @section -- Synapse
   image:
     repository: "matrixdotorg/synapse"
     tag: "v1.95.0"
     pullPolicy: IfNotPresent
+  # -- Service configuration
+  # @section -- Synapse
   service:
     type: ClusterIP
     port: 80
+    # -- Federation service configuration
+    # @section -- Synapse
     federation:
       type: ClusterIP
       port: 80
+  # -- Replica count
+  # @section -- Synapse
   replicaCount: 1
+  # -- Resource configuration
+  # @section -- Synapse
   resources:
     requests:
       memory: "8Gi"
     limits:
       memory: "16Gi"
-  # Configure timings for readiness, startup, and liveness probes here
+  # -- Configure timings for readiness, startup, and liveness probes here
+  # @section -- Synapse
   probes:
     readiness:
       timeoutSeconds: 5
@@ -412,16 +536,14 @@ synapse:
       timeoutSeconds: 5
       periodSeconds: 10
 
-  # Labels to be appended to all Synapse resources
+  # -- Labels to be appended to all Synapse resources
+  # @section -- Synapse
   labels:
     component: synapse
 
-  # These plugins will be installed via pip3 install command at the start of synapse container
-  plugins:
-    - git+https://github.com/matrix-org/synapse-s3-storage-provider.git
-
-  # Prometheus metrics for Synapse
   # https://github.com/matrix-org/synapse/blob/master/docs/metrics-howto.md
+  # -- Prometheus metrics for Synapse
+  # @section -- Synapse
   metrics:
     # Whether Synapse should capture metrics on an additional endpoint
     enabled: true
@@ -429,26 +551,40 @@ synapse:
     port: 9092
     annotations: true
 
+  # -- Host aliases configuration
+  # @section -- Synapse
   hostAliases:
     - ip: "1.1.1.1"
       hostnames:
       - "matrix.example.com"
 
-# Synapse Kubernetes resource settings
+# Synapse Admin configuration
 synapseAdmin:
+  # -- Enables deployment of matrix admin website
+  # @section -- Synapse Admin
   enabled: false
-  # Set false if you want connect admin to synapse via http
+  # -- Set false if you want connect admin to synapse via http
+  # @section -- Synapse Admin
   useSecureConnection: true
+  # -- Image configuration of container
+  # @section -- Synapse Admin
   image:
     repository: "awesometechnologies/synapse-admin"
     tag: "0.8.7"
     pullPolicy: IfNotPresent
+  # -- Service configuration
+  # @section -- Synapse Admin
   service:
     type: ClusterIP
     port: 80
+  # -- Replica configuration
+  # @section -- Synapse Admin
   replicaCount: 1
+  # -- Resources configuration
+  # @section -- Synapse Admin
   resources: {}
-  # Configure timings for readiness, startup, and liveness probes here
+  # -- Configure timings for readiness, startup, and liveness probes here
+  # @section -- Synapse Admin
   probes:
     readiness:
       timeoutSeconds: 5
@@ -461,43 +597,57 @@ synapseAdmin:
       timeoutSeconds: 5
       periodSeconds: 10
 
-  # Labels to be appended to all Synapse resources
+  # -- Synapse admin specific labels
+  # @section -- Synapse Admin
   labels:
     component: synapse-admin
 
 # Element (formerly Riot Web) client configuration
 riot:
-  # Set to false to disable a deployment of Element. Users will still be able to connect via any other instances of Element (such as https://app.element.io), Element Desktop, or any other Matrix clients
+  # -- Set to false to disable a deployment of Element.
+  # @section -- Element (Riot)
   enabled: true
+  # Users will still be able to connect via any other instances of Element (such as https://app.element.io), Element Desktop, or any other Matrix clients
 
+  # -- DNS name
+  # @section -- Element (Riot)
   baseUrl: https://matrix.example.com
 
-  # Use this value to link with external Jitsi instance
   jitsi:
+    # -- Use this value to link with external Jitsi instance
+    # @section -- Element (Riot)
     domain: ""
 
   # Organization/enterprise branding
   branding:
-    # Shown in email notifications
+    # -- Shown in email notifications
+    # @section -- Element (Riot)
     brand: "Element"
-    # Background of login splash screen
+    # -- Background of login splash screen
+    # @section -- Element (Riot)
     welcomeBackgroundUrl: ""
-    # Logo shown at top of login screen
+    # -- Logo shown at top of login screen
+    # @section -- Element (Riot)
     authHeaderLogoUrl: ""
-    # Array of links to show at the bottom of the login screen
+    # -- Array of links to show at the bottom of the login screen
+    # @section -- Element (Riot)
     authFooterLinks: []
 #      - text:
 #        url:
 
   # Element integrations configuration
   integrations:
-    # Set to false to disable the Integrations menu (including widgets, bots, and other plugins to Element)
+    # -- Set to false to disable the Integrations menu (including widgets, bots, and other plugins to Element)
+    # @section -- Element (Riot)
     enabled: true
-    # UI to load when a user selects the Integrations button at the top-right of a room
+    # -- UI to load when a user selects the Integrations button at the top-right of a room
+    # @section -- Element (Riot)
     ui: "https://scalar.vector.im/"
-    # API for the integration server
+    # -- API for the integration server
+    # @section -- Element (Riot)
     api: "https://scalar.vector.im/api"
-    # Array of API paths providing widgets
+    # -- Array of API paths providing widgets
+    # @section -- Element (Riot)
     widgets:
       - "https://scalar.vector.im/_matrix/integrations/v1"
       - "https://scalar.vector.im/api"
@@ -505,7 +655,8 @@ riot:
       - "https://scalar-staging.vector.im/api"
       - "https://scalar-staging.riot.im/scalar/api"
 
-  # Experimental features in Element, see https://github.com/vector-im/riot-web/blob/develop/docs/labs.md
+  # -- Experimental features in Element
+  # @section -- Element (Riot)
   labs:
     - feature_new_spinner
     - feature_pinning
@@ -517,103 +668,144 @@ riot:
     - feature_dm_verification
     - feature_presence_in_room_list
     - feature_custom_themes
+  # See https://github.com/vector-im/riot-web/blob/develop/docs/labs.md for more features
 
-  # Servers to show in the Explore menu (the current server is always shown)
+  # -- Servers to show in the Explore menu (the current server is always shown)
+  # @section -- Element (Riot)
   roomDirectoryServers:
     - marix.example.com
 
-  # Set to the user ID (@username:domain.tld) of a bot to invite all new users to a DM with the bot upon registration
+  # -- Set to the user ID (@username:domain.tld) of a bot to invite all new users to a DM with the bot upon registration
+  # @section -- Element (Riot)
   welcomeUserId: ""
 
-  # Prefix before permalinks generated when users share links to rooms, users, or messages. If running an unfederated Synapse, set the below to the URL of your Element instance.
+  # -- Prefix before permalinks generated when users share links to rooms, users, or messages. If running an unfederated Synapse, set the below to the URL of your Element instance.
+  # @section -- Element (Riot)
   permalinkPrefix: "https://marix.example.com"
 
-  # Element Kubernetes resource settings
+  # -- Image configuration of container
+  # @section -- Element (Riot)
   image:
     repository: "vectorim/element-web"
     tag: "v1.11.47"
     pullPolicy: IfNotPresent
+  # -- Service configuration
+  # @section -- Element (Riot)
   service:
     type: ClusterIP
     port: 80
+  # -- Replica configuration
+  # @section -- Element (Riot)
   replicaCount: 1
+  # -- Resources configuration
+  # @section -- Element (Riot)
   resources: {}
+  # -- Configure timings for readiness, startup, and liveness probes here
+  # @section -- Element (Riot)
   probes:
     readiness: {}
     startup: {}
     liveness: {}
 
-  # Element specific labels
+  # -- Element specific labels
+  # @section -- Element (Riot)
   labels:
     component: element
 
 # Settings for Coturn TURN relay, used for routing voice calls
 coturn:
-  # Set to false to disable the included deployment of Coturn
+  # -- Set to true to enable the included deployment of Coturn
+  # @section -- Coturn
   enabled: false
 
-  # URIs of the Coturn servers
-  # If deploying Coturn with this chart, include the public IPs of each node in your cluster (or a DNS round-robin hostname)
-  # You can also include an external Coturn instance if you'd prefer
+  # -- URIs of the Coturn servers
+  # @section -- Coturn
   uris:
     - "turn:marix.example.com?transport=udp"
+  # If deploying Coturn with this chart, include the public IPs of each node in your cluster (or a DNS round-robin hostname)
+  # You can also include an external Coturn instance if you'd prefer
 
-  # How to deploy Coturn
+  # -- How to deploy Coturn
+  # @section -- Coturn
+  kind: DaemonSet
   # Options:
   #   DaemonSet:  A DaemonSet will be used to schedule one Coturn pod per node. Each Coturn pod will open the ports it needs directly on the host it is scheduled on.
   #               This maximizes compatibility and will allow you to set up Coturn without any additional cluster configuration.
   #   Deployment: A Deployment will be used to schedule Coturn pods. The number of Coturn pods will be configurable (via the replicaCount setting below).
   #               You will need to use a NodePort service or an external load balancer to route traffic to the Coturn pods.
   #               This is more flexible and can use fewer pods in a multi-node setup, but will require additional networking configuration.
-  kind: DaemonSet
 
-  # Whether to allow guests to use the TURN server
+  # -- Whether to allow guests to use the TURN server
+  # @section -- Coturn
   allowGuests: true
 
-  # Shared secret for communication between Synapse and Coturn.
-  # Optional, will be auto-generated if not overridden here.
+  # -- Shared secret for communication between Synapse and Coturn.
+  # @section -- Coturn
   sharedSecret: ""
+  # Optional, will be auto-generated if not overridden here.
 
-  # UDP port range for TURN connections
+  # -- UDP port range for TURN connections
+  # @section -- Coturn
   ports:
     from: 49152
     to: 49172
 
   service:
-    # The type of service to deploy for routing Coturn traffic
+    # -- The type of service to deploy for routing Coturn traffic
+    # @section -- Coturn
+    type: ClusterIP
     # Options:
     #   ClusterIP: Recommended for DaemonSet configurations. This will create a standard Kubernetes service for Coturn within the cluster. No external networking
     #              will be configured as the DaemonSet will handle binding to each Node's host networking
     #   NodePort:  Recommended for Deployment configurations. This will open TURN ports on every node and route traffic on these ports to the Coturn pods.
     #              You will need to make sure your cloud provider supports the cluster config setting "apiserver.service-node-port-range", as this range must contain
     #              the ports defined above for the service to be created.
-    type: ClusterIP
 
+  # -- Image configuration of pod
+  # @section -- Coturn
   image:
     repository: "coturn/coturn"
     tag: "4.6.2"
     pullPolicy: IfNotPresent
+  # -- Replica configuration
+  # @section -- Coturn
   replicaCount: 1
+  # -- Resource configuration
+  # @section -- Coturn
   resources: {}
 
-  # Coturn specific labels
+  # -- Coturn specific labels
+  # @section -- Coturn
   labels:
     component: coturn
 
 # https://github.com/jitsi-contrib/jitsi-helm/blob/main/values.yaml
 jitsi:
-  # Set to false to disable the included deployment of Jitsi video conferencing
+  # -- Set to false to disable the included deployment of Jitsi video conferencing
+  # @section -- Jitsi
   enabled: false
+  # -- DNS name
+  # @section -- Jitsi
   publicURL: "meet.example.com"
+  # -- Enable guest access to video conferences
+  # @section -- Jitsi
   enableGuests: false
+  # -- Enable auth configuration (Required for matrix auth)
+  # @section -- Jitsi
   enableAuth: true
+  # -- Additional environment variables for jitsi pods
+  # @section -- Jitsi
   extraCommonEnvs:
     AUTH_TYPE: "matrix"
 
   global:
+    # -- Jitsi specific labels
+    # @section -- Jitsi
     podLabels:
       component: "jitsi"
 
+  # -- Website pod configuration
+  # @section -- Jitsi
   web:
     image:
       repository: "jitsi/web"
@@ -632,12 +824,16 @@ jitsi:
         configMap:
           name: matrix-jitsi-web-config
 
+  # -- Conference focus pod configuration
+  # @section -- Jitsi
   jicofo:
     image:
       repository: "jitsi/jicofo"
       tag: "stable"
     replicaCount: 1
 
+  # -- Videobridge pod configuration
+  # @section -- Jitsi
   jvb:
     image:
       repository: "jitsi/jvb"
@@ -654,23 +850,25 @@ jitsi:
       type: ClusterIP
       externalTrafficPolicy: ""
 
+  # -- Jibri pod configuration
+  # @section -- Jitsi
   jibri:
-    ## Enabling Jibri will allow users to record
-    ## and/or stream their meetings (e.g. to YouTube).
+    ## Enabling Jibri will allow users to record and/or stream their meetings (e.g. to YouTube).
     enabled: false
     image:
       repository: "jjitsi/jibri"
       tag: "stable"
     replicaCount: 1
     shm:
-      ## Set to true to enable "/dev/shm" mount.
-      ## May be required by built-in Chromium.
+      ## Set to true to enable "/dev/shm" mount. May be required by built-in Chromium.
       enabled: true
     persistence:
       enabled: false
       storageClassName: ""
       size: 4Gi
 
+  # -- Prosody pod configuration
+  # @section -- Jitsi
   prosody:
     enabled: true
     image:
@@ -695,56 +893,85 @@ jitsi:
 
 # Settings for email notifications
 mail:
-  # Set to false to disable all email notifications
-  # NOTE: If enabled, either enable the Exim relay or configure an external mail server below
+  # -- Set to false to disable all email notifications
+  # @section -- Mail
   enabled: false
-  # Name and email address for outgoing mail
+  # NOTE: If enabled, either enable the Exim relay or configure an external mail server below.
+
+  # -- Name and email address for outgoing mail
+  # @section -- Mail
   from: "Matrix <matrix@example.com>"
-  # Optional: Element instance URL.
+
+  # -- Optional: Element instance URL.
+  # @section -- Mail
+  riotUrl: ""
   # If the ingress is enabled, this is unnecessary.
   # If the ingress is disabled and this is left unspecified, emails will contain a link to https://app.element.io
-  riotUrl: ""
 
-  # Exim relay
   relay:
+    # -- Change if you want to use Exim Relay
+    # @section -- Exim Relay
     enabled: false
+    # -- Image configuration for container
+    # @section -- Exim Relay
     image:
       repository: "devture/exim-relay"
       tag: "4.96.2-r0-0"
       pullPolicy: IfNotPresent
+    # -- Service configuration
+    # @section -- Exim Relay
     service:
       type: ClusterIP
       port: 25
+    # -- Replica configuration
+    # @section -- Exim Relay
     replicaCount: 1
+    # -- Resource configuration
+    # @section -- Exim Relay
     resources: {}
+    # -- Configure timings for readiness, startup, and liveness probes here
+    # @section -- Exim Relay
     probes:
       readiness: {}
       startup: {}
       liveness: {}
-    # Mail relay specific labels
+    # -- Exim Relay specific labels
+    # @section -- Exim Relay
     labels:
       component: mail
 
-
-  # External mail server
+  # -- External mail server
+  # @section -- Mail
   external:
     host: ""
-    port: 25  # SSL: 465, STARTTLS: 587
+    # SSL: 465, STARTTLS: 587
+    port: 25
     username: ""
     password: ""
     requireTransportSecurity: true
 
+# Matrix bridges configuration
 bridges:
   irc:
-    # Set to true to enable the IRC bridge
+    # -- Set to true to enable the IRC bridge
+    # @section -- IRC bridge
     enabled: false
-    # Whether to enable presence (online/offline indicators). If presence is disabled for the homeserver (above), it should be disabled here too
+    # -- Whether to enable presence (online/offline indicators).
+    # @section -- IRC bridge
     presence: false
-    # Name of Postgres database to store IRC bridge data in, this database will be created if the included Postgres chart is enabled, otherwise you must create it manually
+    # If presence is disabled for the homeserver (above), it should be disabled here too
+
+    # -- Name of Postgres database to store IRC bridge data in
+    # @section -- IRC bridge
     database: "matrix_irc"
+    # This database will be created if the included Postgres chart is enabled, otherwise you must create it manually
+
+    # -- Verify SSL database connection
+    # @section -- IRC bridge
     databaseSslVerify: true
 
-    # Object of IRC servers to connect to, see https://github.com/matrix-org/matrix-appservice-irc/blob/master/config.sample.yaml for config options
+    # -- Object of IRC servers to connect to, see https://github.com/matrix-org/matrix-appservice-irc/blob/master/config.sample.yaml for config options
+    # @section -- IRC bridge
     servers:
       chat.freenode.net:
         # A human-readable short name.
@@ -754,31 +981,47 @@ bridges:
         # Whether to use SSL or not. Default: false.
         ssl: true
 
+    # -- PVC to allocate for the IRC bridge container
+    # @section -- IRC bridge
     data:
-      # Size of the data PVC to allocate
       capacity: 1Mi
+      # Storage class (optional)
+      storageClass: ""
 
+    # -- Image of bridge container
+    # @section -- IRC bridge
     image:
       repository: "matrixdotorg/matrix-appservice-irc"
       tag: "release-1.0.1"
       pullPolicy: IfNotPresent
+    # -- Replica count
+    # @section -- IRC bridge
     replicaCount: 1
+    # -- Pod resources
+    # @section -- IRC bridge
     resources: {}
+    # -- Service configuration
+    # @section -- IRC bridge
     service:
       type: ClusterIP
       port: 9006
 
   whatsapp:
-    # Set to true to enable the WhatsApp bridge
+    # -- Set to true to enable the WhatsApp bridge
+    # @section -- WhatsApp bridge
     enabled: false
 
-    # Username and display name of the WhatsApp bridge bot
+    # -- Username and display name of the WhatsApp bridge bot
+    # @section -- WhatsApp bridge
     bot:
       username: "whatsappbot"
       displayName: "WhatsApp bridge bot"
       avatar: "mxc://maunium.net/NeXNQarUbrlYBiPCpprYsRqr"
 
-    # Permissions for using the bridge.
+    # -- Permissions for using the bridge.
+    # @section -- WhatsApp bridge
+    permissions:
+      "*": relaybot
     # Permitted values:
     # relaybot - Talk through the relaybot (if enabled), no access otherwise
     #     user - Access to use the bridge to chat with a WhatsApp account.
@@ -787,157 +1030,200 @@ bridges:
     #        * - All Matrix users
     #   domain - All users on that homeserver
     #     mxid - Specific user
-    permissions:
-      "*": relaybot
 
     # WhatsApp server connection settings
     connection:
-      # WhatsApp server connection timeout (seconds)
+      # -- WhatsApp server connection timeout (seconds)
+      # @section -- WhatsApp bridge
       timeout: 20
-      # Number of QR codes to store, essentially multiplying the connection timeout
+      # -- Number of QR codes to store, essentially multiplying the connection timeout
+      # @section -- WhatsApp bridge
       qrRegenCount: 2
-      # Maximum number of connection attempts before failing
+      # -- Maximum number of connection attempts before failing
+      # @section -- WhatsApp bridge
       maxAttempts: 3
-      # Retry delay
-      # Negative numbers are exponential backoff: -connection_retry_delay + 1 + 2^attempts
+      # -- Retry delay
+      # @section -- WhatsApp bridge
       retryDelay: -1
-      # Whether or not to notify the user when attempting to reconnect. Set to false to only report when maxAttempts has been reached
+      # Negative numbers are exponential backoff: -connection_retry_delay + 1 + 2^attempts
+
+      # -- Whether or not to notify the user when attempting to reconnect. Set to false to only report when maxAttempts has been reached
+      # @section -- WhatsApp bridge
       reportRetry: true
 
-    # Send notifications for incoming calls
+    # -- Send notifications for incoming calls
+    # @section -- WhatsApp bridge
     callNotices: true
 
     users:
-      # Username for WhatsApp users
-      # Evaluated as a template where {{ . }} is replaced with the phone number of the WhatsApp user
+      # -- Username for WhatsApp users
+      # @section -- WhatsApp bridge
       username: "whatsapp_{{.}}"
+      # Evaluated as a template where {{ . }} is replaced with the phone number of the WhatsApp user
 
-      # Display name for WhatsApp users
+      # -- Display name for WhatsApp users
+      # @section -- WhatsApp bridge
+      displayName: "{{if .Notify}}{{.Notify}}{{else}}{{.Jid}}{{end}} (WA)"
       # Evaluated as a template, with variables:
       # {{.Notify}} - nickname set by the WhatsApp user
       # {{.Jid}}    - phone number (international format)
       # The following variables are also available, but will cause problems on multi-user instances:
       # {{.Name}}   - display name from contact list
       # {{.Short}}  - short display name from contact list
-      displayName: "{{if .Notify}}{{.Notify}}{{else}}{{.Jid}}{{end}} (WA)"
 
-    # Display name for communities.
+    # -- Display name for communities.
+    # @section -- WhatsApp bridge
+    communityName: "whatsapp_{{.Localpart}}={{.Server}}"
     # A community will be automatically generated for each user using the bridge, and can be used to group WhatsApp chats together
     # Evaluated as a template, with variables:
     # {{.Localpart}} - MXID localpart
     # {{.Server}}    - MXID server part of the user.
-    communityName: "whatsapp_{{.Localpart}}={{.Server}}"
 
     relaybot:
-      # Set to true to enable the relaybot and management room
+      # -- Set to true to enable the relaybot and management room
+      # @section -- WhatsApp bridge
       enabled: false
 
-      # Management room for the relay bot where status notifications are posted
+      # -- Management room for the relay bot where status notifications are posted
+      # @section -- WhatsApp bridge
       management: "!foo:example.com"
 
-      # Users to invite to the management room automatically
+      # -- Users to invite to the management room automatically
+      # @section -- WhatsApp bridge
       invites: []
 
+    # -- PVC to allocate for the SQLite database
+    # @section -- WhatsApp bridge
     data:
-      # Size of the PVC to allocate for the SQLite database
       capacity: 512Mi
       # Storage class (optional)
       storageClass: ""
 
+    # -- Image of bridge container
+    # @section -- WhatsApp bridge
     image:
       repository: "dock.mau.dev/tulir/mautrix-whatsapp"
       tag: "v0.10.3"
       pullPolicy: Always
+    # -- Replica count
+    # @section -- WhatsApp bridge
     replicaCount: 1
+    # -- Pod resources
+    # @section -- WhatsApp bridge
     resources: {}
+    # -- Service configuration
+    # @section -- WhatsApp bridge
     service:
       type: ClusterIP
       port: 29318
 
+  # Discord bridge configuration
   discord:
-    # Set to true to enable the Discord bridge
+    # -- Set to true to enable the Discord bridge
+    # @section -- Discord bridge
     enabled: false
 
-    # Discord bot authentication
-    # See https://github.com/Half-Shot/matrix-appservice-discord#setting-up-discord
+    # -- Discord bot authentication
+    # @section -- Discord bridge
     auth:
       clientId: ""
       botToken: ""
+    # See https://github.com/Half-Shot/matrix-appservice-discord#setting-up-discord
 
-    # The name of bridged rooms
+    # -- The name of bridged rooms
+    # @section -- Discord bridge
+    channelName: "[Discord] :guild :name"
     # Available vars:
     #   :guild - guild/server name
     #   :name  - channel name prefixed with #
-    channelName: "[Discord] :guild :name"
 
     users:
-      # Nickname of bridged Discord users
+      # -- Nickname of bridged Discord users
+      # @section -- Discord bridge
+      nickname: ":nick"
       # Available vars:
       #   :nick     - user's Discord nickname
       #   :username - user's Discord username
       #   :tag      - user's 4 digit Discord tag
       #   :id       - user's Discord developer ID (long)
-      nickname: ":nick"
-      # Username of bridged Discord users
+
+      # -- Username of bridged Discord users
+      # @section -- Discord bridge
+      username: ":username#:tag"
       # Available vars:
       #   :username - user's Discord username
       #   :tag      - user's 4 digit Discord tag
       #   :id       - user's Discord developer ID (long)
-      username: ":username#:tag"
 
-    # Set to false to disable online/offline presence for Discord users
+    # -- Set to false to disable online/offline presence for Discord users
+    # @section -- Discord bridge
     presence: true
 
-    # Set to false to disable typing notifications (only for Discord to Matrix)
+    # -- Set to false to disable typing notifications (only for Discord to Matrix)
+    # @section -- Discord bridge
     typingNotifications: true
 
-    # Set to true to allow users to bridge rooms themselves using !discord commands
-    # More info: https://t2bot.io/discord
+    # -- Set to true to allow users to bridge rooms themselves using !discord commands
+    # @section -- Discord bridge
     selfService: false
+    # More info: https://t2bot.io/discord
 
-    # Set to false to disable the Discord bot read receipt, which advances whenever the bot bridges a message
+    # -- Set to false to disable the Discord bot read receipt, which advances whenever the bot bridges a message
+    # @section -- Discord bridge
     readReceipt: true
 
-    # Set to false to disable Discord notifications when a user joins/leaves the Matrix channel
+    # -- Set to false to disable Discord notifications when a user joins/leaves the Matrix channel
+    # @section -- Discord bridge
     joinLeaveEvents: true
 
-    # Default visibility of bridged rooms (public/private)
+    # -- Default visibility of bridged rooms (public/private)
+    # @section -- Discord bridge
     defaultVisibility: public
 
+    # -- PVC to allocate for the SQLite database
+    # @section -- Discord bridge
     data:
-      # Size of the PVC to allocate for the SQLite database
       capacity: 512Mi
       # Storage class (optional)
       storageClass: ""
 
+    # -- Image of bridge container
+    # @section -- Discord bridge
     image:
       repository: "halfshot/matrix-appservice-discord"
       tag: "v1.0.0"
       pullPolicy: Always
+    # -- Replica count
+    # @section -- Discord bridge
     replicaCount: 1
+    # -- Pod resources
+    # @section -- Discord bridge
     resources: {}
+    # -- Service configuration
+    # @section -- Discord bridge
     service:
       type: ClusterIP
       port: 9005
-  # Recommended to leave this disabled to allow bridges to be scheduled on separate nodes.
+
+  # -- Recommended to leave this disabled to allow bridges to be scheduled on separate nodes.
+  # @section -- Bridges
+  affinity: false
   # Set this to true to reduce latency between the homeserver and bridges, or if your cloud provider does not allow
   # the ReadWriteMany access mode (see below)
-  affinity: false
+
   volume:
-    # Capacity of the shared volume for storing bridge/appservice registration files
-    # Note: 1Mi should be enough but some cloud providers may set a minimum PVC size of 1Gi, adjust as necessary
+    # -- Capacity of the shared volume for storing bridge/appservice registration files
+    # @section -- Bridges
     capacity: 1Mi
-    # Storage class (optional)
+    # Note: 1Mi should be enough but some cloud providers may set a minimum PVC size of 1Gi, adjust as necessary
+
+    # -- Storage class (optional)
+    # @section -- Bridges
     storageClass: ""
-    # Access mode of the shared volume. ReadWriteMany is recommended to allow bridges to be scheduled on separate nodes.
+
+    # -- Access mode of the shared volume.
+    # @section -- Bridges
+    accessMode: ReadWriteMany
+    # ReadWriteMany is recommended to allow bridges to be scheduled on separate nodes.
     # Some cloud providers may not allow the ReadWriteMany access mode. In that case, change this to ReadWriteOnce -AND-
     # set bridges.affinity (above) to true
-    accessMode: ReadWriteMany
-
-imagePullSecrets: {}
-
-nameOverride: ""
-fullnameOverride: ""
-
-networkPolicies:
-  enabled: false

@@ -6,6 +6,9 @@ metadata:
   labels:
   {{ include "matrix.labels" . | nindent 4}}
 spec:
+  {{- if .Values.bridges.irc.data.storageClass }}
+  storageClassName: {{ .Values.bridges.irc.data.storageClass }}
+  {{- end }}
   accessModes:
     - ReadWriteOnce
   resources:
