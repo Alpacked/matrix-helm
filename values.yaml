@@ -357,8 +357,8 @@ redis:
 # Synapse Kubernetes resource settings
 synapse:
   image:
-    repository: "matrixdotorg/synapse"
-    tag: "v1.95.0"
+    repository: "alpacked/matrix-synapse"
+    tag: "master"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

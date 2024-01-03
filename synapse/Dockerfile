@@ -4,6 +4,11 @@ FROM alpine:latest as source-code
 
 ARG SYNAPSE_VERSION=v1.95.0
 
+RUN \
+    apk update && apk add --no-cache \
+    mpfr4 \
+    && rm -rf /var/cache/apk/*
+
 RUN wget -qO- https://codeload.github.com/matrix-org/synapse/tar.gz/refs/tags/${SYNAPSE_VERSION} | tar xvz -C / \
     && mv /synapse-${SYNAPSE_VERSION:1} /synapse
 
