@@ -51,6 +51,8 @@ ENV RUSTUP_HOME=/rust
 ENV CARGO_HOME=/cargo
 ENV PATH=/cargo/bin:/rust/bin:$PATH
 
+RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+
 RUN \
     --mount=type=cache,target=/var/cache/apk,sharing=locked \
     apk add --update --no-cache \
@@ -58,7 +60,7 @@ RUN \
     libffi-dev \
     libjpeg-turbo-dev \
     libpq-dev \
-    libssl1.1 \
+    libssl1.1@testing \
     libwebp-dev \
     libxml2-dev \
     libxslt-dev \
