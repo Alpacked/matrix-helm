@@ -1732,21 +1732,15 @@ true
 		</tr>
 		<tr>
 			<td>matrix.uvs.accessToken</td>
-			<td>string</td>
+			<td>object</td>
 			<td><pre lang="json">
-""
+{
+  "secretKey": "",
+  "secretName": ""
+}
 </pre>
 </td>
-			<td>Access token for Matrix Synapse API.</td>
-		</tr>
-		<tr>
-			<td>matrix.uvs.authToken</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Auth token to protect the API</td>
+			<td>Secret access token for Matrix Synapse API.</td>
 		</tr>
 		<tr>
 			<td>matrix.uvs.disableIpBlacklist</td>
