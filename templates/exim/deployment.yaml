@@ -28,7 +28,7 @@ spec:
       containers:
         - name: "exim-relay"
           image: "{{ .Values.mail.relay.image.repository }}:{{ .Values.mail.relay.image.tag }}"
-          imagePullPolicy: {{ .Values.mail.relay.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.mail.relay.image.pullPolicy }}
           ports:
             - name: smtp
               containerPort: 8025

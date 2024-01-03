@@ -54,7 +54,7 @@ spec:
       initContainers:
         - name: "load-config"
           image: "{{ .Values.bridges.discord.image.repository }}:{{ .Values.bridges.discord.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.discord.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.discord.image.pullPolicy }}
           command: ["sh"]
           args: ["-c", "cp /load/registration.yaml /data/discord-registration.yaml; cp /load/config.yaml /data/config.yaml; cp /load/registration.yaml /bridges/discord.yaml"]
           volumeMounts:
@@ -74,7 +74,7 @@ spec:
       containers:
         - name: "bridge-discord"
           image: "{{ .Values.bridges.discord.image.repository }}:{{ .Values.bridges.discord.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.discord.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.discord.image.pullPolicy }}
           ports:
             - name: bridge
               containerPort: 9005

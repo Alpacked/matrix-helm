@@ -206,6 +206,32 @@ matrix:
   # Human readable reason for why the homeserver is blocked
   disabledMessage: ""
 
+  # Matrix user verification service
+  uvs:
+    enabled: false
+    image:
+      repository: "matrixdotorg/matrix-user-verification-service"
+      tag: "v3.0.0"
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    # TODO: Find way how to generate access token without user interaction.
+    # Provide here path to a secret with Matrix Synapse API key.
+    # This must be token from admin user, currently can be fetched manually from Riot/Element dashboard.
+    accessToken:
+      secretName: ""
+      secretKey: ""
+    # Disable check for non private IP range of homeserver. E.g. set to `true` if your homeserver domain resolves to a private IP.
+    disableIpBlacklist: true
+    # Log level, see choices here: https://github.com/winstonjs/winston#logging-levels
+    logLevel: "info"
+
+    service:
+      type: ClusterIP
+      port: 3000
+
+    labels:
+      component: uvs
+
   logging:
     # Root log level is the default log level for log outputs that do not have more
     # specific settings.
@@ -247,6 +273,7 @@ ingress:
     admin: admin.matrix.example.com
     riot: element.matrix.example.com
     federation: federation.matrix.example.com
+    jitsi: meet.example.com
   annotations:
     # This annotation is required for the Nginx ingress provider. You can remove it if you use a different ingress provider
     nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -445,8 +472,9 @@ riot:
 
   baseUrl: https://matrix.example.com
 
+  # Use this value to link with external Jitsi instance
   jitsi:
-    domain: meet.example.com
+    domain: ""
 
   # Organization/enterprise branding
   branding:
@@ -571,6 +599,99 @@ coturn:
   # Coturn specific labels
   labels:
     component: coturn
+
+# https://github.com/jitsi-contrib/jitsi-helm/blob/main/values.yaml
+jitsi:
+  # Set to false to disable the included deployment of Jitsi video conferencing
+  enabled: false
+  publicURL: "meet.example.com"
+  enableGuests: false
+  enableAuth: true
+  extraCommonEnvs:
+    AUTH_TYPE: "matrix"
+
+  global:
+    podLabels:
+      component: "jitsi"
+
+  web:
+    image:
+      repository: "jitsi/web"
+      tag: "stable"
+    replicaCount: 1
+    service:
+      type: ClusterIP
+      port: 80
+    extraVolumeMounts:
+      - mountPath: /usr/share/jitsi-meet/.well-known/element/jitsi
+        name: well-known-element-jitsi
+        subPath: jitsi.json
+        readOnly: true
+    extraVolumes:
+      - name: well-known-element-jitsi
+        configMap:
+          name: matrix-jitsi-web-config
+
+  jicofo:
+    image:
+      repository: "jitsi/jicofo"
+      tag: "stable"
+    replicaCount: 1
+
+  jvb:
+    image:
+      repository: "jitsi/jvb"
+      tag: "stable"
+    replicaCount: 1
+
+    UDPPort: 10000
+    ## Use a pre-defined external port for NodePort or LoadBalancer service,
+    #  if needed. Will allocate a random port from allowed range if unset.
+    #  (Default NodePort range for K8s is 30000-32767)
+    # nodePort: 10000
+    service:
+      enabled: true
+      type: ClusterIP
+      externalTrafficPolicy: ""
+
+  jibri:
+    ## Enabling Jibri will allow users to record
+    ## and/or stream their meetings (e.g. to YouTube).
+    enabled: false
+    image:
+      repository: "jjitsi/jibri"
+      tag: "stable"
+    replicaCount: 1
+    shm:
+      ## Set to true to enable "/dev/shm" mount.
+      ## May be required by built-in Chromium.
+      enabled: true
+    persistence:
+      enabled: false
+      storageClassName: ""
+      size: 4Gi
+
+  prosody:
+    enabled: true
+    image:
+      repository: "jitsi/prosody"
+      tag: "stable"
+    persistence:
+      enabled: false
+      storageClassName: ""
+      size: 3Gi
+    podSecurityContext:
+      fsGroup: 102
+    extraEnvFrom:
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-uvs'
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-jicofo'
+      - secretRef:
+          name: '{{ include "matrix.fullname" . }}-jvb'
+      - configMapRef:
+          name: '{{ include "matrix.fullname" . }}-common'
+
 
 # Settings for email notifications
 mail:

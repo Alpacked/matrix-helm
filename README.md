@@ -25,6 +25,7 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | 13.2.0 |
 | https://charts.bitnami.com/bitnami | redis | 18.2.0 |
+| https://jitsi-contrib.github.io/jitsi-helm | jitsi(jitsi-meet) | 1.3.8 |
 
 ## Values
 
@@ -119,9 +120,56 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | ingress.federation | bool | `true` |  |
 | ingress.hosts.admin | string | `"admin.matrix.example.com"` |  |
 | ingress.hosts.federation | string | `"federation.matrix.example.com"` |  |
+| ingress.hosts.jitsi | string | `"meet.example.com"` |  |
 | ingress.hosts.riot | string | `"element.matrix.example.com"` |  |
 | ingress.hosts.synapse | string | `"matrix.example.com"` |  |
 | ingress.tls | list | `[]` |  |
+| jitsi.enableAuth | bool | `true` |  |
+| jitsi.enableGuests | bool | `false` |  |
+| jitsi.enabled | bool | `false` |  |
+| jitsi.extraCommonEnvs.AUTH_TYPE | string | `"matrix"` |  |
+| jitsi.global.podLabels.component | string | `"jitsi"` |  |
+| jitsi.jibri.enabled | bool | `false` |  |
+| jitsi.jibri.image.repository | string | `"jjitsi/jibri"` |  |
+| jitsi.jibri.image.tag | string | `"stable"` |  |
+| jitsi.jibri.persistence.enabled | bool | `false` |  |
+| jitsi.jibri.persistence.size | string | `"4Gi"` |  |
+| jitsi.jibri.persistence.storageClassName | string | `""` |  |
+| jitsi.jibri.replicaCount | int | `1` |  |
+| jitsi.jibri.shm.enabled | bool | `true` |  |
+| jitsi.jicofo.image.repository | string | `"jitsi/jicofo"` |  |
+| jitsi.jicofo.image.tag | string | `"stable"` |  |
+| jitsi.jicofo.replicaCount | int | `1` |  |
+| jitsi.jvb.UDPPort | int | `10000` |  |
+| jitsi.jvb.image.repository | string | `"jitsi/jvb"` |  |
+| jitsi.jvb.image.tag | string | `"stable"` |  |
+| jitsi.jvb.replicaCount | int | `1` |  |
+| jitsi.jvb.service.enabled | bool | `true` |  |
+| jitsi.jvb.service.externalTrafficPolicy | string | `""` |  |
+| jitsi.jvb.service.type | string | `"ClusterIP"` |  |
+| jitsi.prosody.enabled | bool | `true` |  |
+| jitsi.prosody.extraEnvFrom[0].secretRef.name | string | `"{{ include \"matrix.fullname\" . }}-uvs"` |  |
+| jitsi.prosody.extraEnvFrom[1].secretRef.name | string | `"{{ include \"matrix.fullname\" . }}-jicofo"` |  |
+| jitsi.prosody.extraEnvFrom[2].secretRef.name | string | `"{{ include \"matrix.fullname\" . }}-jvb"` |  |
+| jitsi.prosody.extraEnvFrom[3].configMapRef.name | string | `"{{ include \"matrix.fullname\" . }}-common"` |  |
+| jitsi.prosody.image.repository | string | `"jitsi/prosody"` |  |
+| jitsi.prosody.image.tag | string | `"stable"` |  |
+| jitsi.prosody.persistence.enabled | bool | `false` |  |
+| jitsi.prosody.persistence.size | string | `"3Gi"` |  |
+| jitsi.prosody.persistence.storageClassName | string | `""` |  |
+| jitsi.prosody.podSecurityContext.fsGroup | int | `102` |  |
+| jitsi.publicURL | string | `"meet.example.com"` |  |
+| jitsi.web.extraVolumeMounts[0].mountPath | string | `"/usr/share/jitsi-meet/.well-known/element/jitsi"` |  |
+| jitsi.web.extraVolumeMounts[0].name | string | `"well-known-element-jitsi"` |  |
+| jitsi.web.extraVolumeMounts[0].readOnly | bool | `true` |  |
+| jitsi.web.extraVolumeMounts[0].subPath | string | `"jitsi.json"` |  |
+| jitsi.web.extraVolumes[0].configMap.name | string | `"matrix-jitsi-web-config"` |  |
+| jitsi.web.extraVolumes[0].name | string | `"well-known-element-jitsi"` |  |
+| jitsi.web.image.repository | string | `"jitsi/web"` |  |
+| jitsi.web.image.tag | string | `"stable"` |  |
+| jitsi.web.replicaCount | int | `1` |  |
+| jitsi.web.service.port | int | `80` |  |
+| jitsi.web.service.type | string | `"ClusterIP"` |  |
 | mail.enabled | bool | `false` |  |
 | mail.external.host | string | `""` |  |
 | mail.external.password | string | `""` |  |
@@ -188,6 +236,18 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | matrix.urlPreviews.rules.ip.blacklist[8] | string | `"fc00::/7"` |  |
 | matrix.urlPreviews.rules.maxSize | string | `"10M"` |  |
 | matrix.urlPreviews.rules.url | object | `{}` |  |
+| matrix.uvs.accessToken.secretKey | string | `""` |  |
+| matrix.uvs.accessToken.secretName | string | `""` |  |
+| matrix.uvs.disableIpBlacklist | bool | `true` |  |
+| matrix.uvs.enabled | bool | `false` |  |
+| matrix.uvs.image.pullPolicy | string | `"IfNotPresent"` |  |
+| matrix.uvs.image.repository | string | `"matrixdotorg/matrix-user-verification-service"` |  |
+| matrix.uvs.image.tag | string | `"v3.0.0"` |  |
+| matrix.uvs.labels.component | string | `"uvs"` |  |
+| matrix.uvs.logLevel | string | `"info"` |  |
+| matrix.uvs.replicaCount | int | `1` |  |
+| matrix.uvs.service.port | int | `3000` |  |
+| matrix.uvs.service.type | string | `"ClusterIP"` |  |
 | nameOverride | string | `""` |  |
 | networkPolicies.enabled | bool | `false` |  |
 | postgresql.auth.database | string | `"matrix"` |  |
@@ -254,7 +314,7 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | riot.integrations.widgets[2] | string | `"https://scalar-staging.vector.im/_matrix/integrations/v1"` |  |
 | riot.integrations.widgets[3] | string | `"https://scalar-staging.vector.im/api"` |  |
 | riot.integrations.widgets[4] | string | `"https://scalar-staging.riot.im/scalar/api"` |  |
-| riot.jitsi.domain | string | `"meet.example.com"` |  |
+| riot.jitsi.domain | string | `""` |  |
 | riot.labels.component | string | `"element"` |  |
 | riot.labs[0] | string | `"feature_new_spinner"` |  |
 | riot.labs[1] | string | `"feature_pinning"` |  |
@@ -285,6 +345,7 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | synapse.metrics.annotations | bool | `true` |  |
 | synapse.metrics.enabled | bool | `true` |  |
 | synapse.metrics.port | int | `9092` |  |
+| synapse.plugins[0] | string | `"git+https://github.com/matrix-org/synapse-s3-storage-provider.git"` |  |
 | synapse.probes.liveness.periodSeconds | int | `10` |  |
 | synapse.probes.liveness.timeoutSeconds | int | `5` |  |
 | synapse.probes.readiness.periodSeconds | int | `10` |  |
@@ -322,4 +383,4 @@ A helm chart for Matrix homeserver, element web-client, Jitsi conference and oth
 | volumes.signingKey.storageClass | string | `""` |  |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.3](https://github.com/norwoodj/helm-docs/releases/v1.11.3)
+Autogenerated from chart metadata using [helm-docs v1.12.0](https://github.com/norwoodj/helm-docs/releases/v1.12.0)

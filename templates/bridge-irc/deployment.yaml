@@ -54,7 +54,7 @@ spec:
       initContainers:
         - name: "load-config"
           image: "{{ .Values.bridges.irc.image.repository }}:{{ .Values.bridges.irc.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.irc.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.irc.image.pullPolicy }}
           command: ["sh"]
           args: ["-c", "cp /load/registration.yaml /data/appservice-registration-irc.yaml; cp /load/passkey.pem /data/passkey.pem; cp /load/config.yaml /data/config.yaml; cp /load/registration.yaml /bridges/irc.yaml"]
           volumeMounts:
@@ -74,7 +74,7 @@ spec:
       containers:
         - name: "bridge-irc"
           image: "{{ .Values.bridges.irc.image.repository }}:{{ .Values.bridges.irc.image.tag }}"
-          imagePullPolicy: {{ .Values.bridges.irc.image.pullPolicy }}
+          imagePullPolicy: {{ default "IfNotPresent" .Values.bridges.irc.image.pullPolicy }}
           {{- if not .Values.bridges.irc.databaseSslVerify }}
           env:
             - name: NODE_TLS_REJECT_UNAUTHORIZED

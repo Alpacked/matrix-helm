@@ -13,9 +13,9 @@ data:
           "base_url": {{ default ( include "matrix.baseUrl" .) .Values.riot.baseUrl  | quote }}
         }
       },
-      {{- if .Values.riot.jitsi.domain }}
+      {{- if or .Values.jitsi.enabled .Values.riot.jitsi.domain }}
       "jitsi": {
-          "preferred_domain": {{ .Values.riot.jitsi.domain | quote }}
+          "preferred_domain": {{ ternary .Values.jitsi.publicURL .Values.riot.jitsi.domain .Values.jitsi.enabled | quote }}
       },
       {{- end }}
       "brand": {{ .Values.riot.branding.brand | quote }},

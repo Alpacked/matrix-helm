@@ -11,6 +11,12 @@
 #
 server_name: {{ .Values.matrix.serverName }}
 
+# By default, other servers will try to reach our server on port 8448, which can be inconvenient in some environments.
+# Provided https://<server_name>/ on port 443 is routed to Synapse
+# This option configures Synapse to serve a file at https://<server_name>/.well-known/matrix/server
+# And will tell other servers to send traffic to port 443 instead.
+serve_server_wellknown: true
+
 # When running as a daemon, the file to store the pid in
 #
 pid_file: /data/homeserver.pid
