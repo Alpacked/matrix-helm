@@ -1,0 +1,112 @@
+name: Docker Build and Scan Image
+
+on:
+  push:
+    tags: [ "*" ]
+    branches:
+      - 'master'
+
+env:
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: matrix-synapse
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Docker
+        id: meta
+        uses: ./.github/actions/configure-docker
+        with:
+          image_name: ${{ vars.IMAGE_NAME }}
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ vars.CONTEXT }}
+          tags: ${{ steps.meta.outputs.image_tags }}
+          labels: ${{ steps.meta.outputs.image_labels }}
+          platforms: ${{ env.PLATFORMS }}
+          outputs: type=oci,dest=matrix-synapse-image.tar
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-synapse-image
+          path: matrix-synapse-image.tar
+
+  scan:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: matrix-synapse
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: matrix-synapse-image
+          path: .
+
+      - name: Unarchive tarball
+        run: |
+          mkdir matrix-synapse-image
+          tar -xvf matrix-synapse-image.tar -C matrix-synapse-image
+
+      - name: Scan Docker image for vulnerabilities
+        id: scan
+        uses: aquasecurity/trivy-action@0.16.1
+        with:
+          input: /github/workspace/matrix-synapse-image
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          format: 'table'
+
+  push:
+    needs: scan
+    runs-on: ubuntu-latest
+    environment: matrix-synapse
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: matrix-synapse-image
+          path: .
+
+      - name: Configure Docker
+        id: meta
+        uses: ./.github/actions/configure-docker
+        with:
+          image_name: ${{ vars.IMAGE_NAME }}
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Load Docker image
+        run: docker image load --input ./matrix-synapse-image.tar
+
+      - name: Push Docker image
+        run: docker push ${{ vars.IMAGE_NAME }} --all-tags
